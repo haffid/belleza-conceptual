@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Belleza Conceptual — Tu ritual de belleza, también en línea</title>
+<meta name="description" content="Belleza Conceptual: catálogo de productos de belleza en línea. Armá tu pedido y coordinamos el pago y la entrega con vos.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%2333202B'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23F3B6C4'%3E%E2%9C%B7%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF6F2;
+    --paper-2:#F4EBE4;
+    --ink:#33202B;
+    --ink-soft:#5B4450;
+    --rose:#B65C6E;
+    --rose-deep:#8F3F52;
+    --gold:#A9853F;
+    --taupe:#6E5C5F;
+    --line: rgba(51,32,43,0.14);
+    --max: 1120px;
+    font-size: 17px;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; scroll-padding-top: 90px; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Work Sans', sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  h1,h2,h3, .display{ font-family:'Fraunces', serif; font-weight:500; color:var(--ink); margin:0; }
+  a{ color:inherit; }
+  .wrap{ max-width:var(--max); margin:0 auto; padding:0 28px; }
+  section{ padding: 96px 0; }
+  @media (max-width:720px){ section{ padding: 64px 0; } }
+
+  /* ---------- Nav ---------- */
+  header{
+    position:sticky; top:0; z-index:20;
+    background:rgba(251,246,242,0.86); backdrop-filter: blur(8px);
+    border-bottom:1px solid var(--line);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  nav.wrap{ display:flex; align-items:center; justify-content:space-between; height:76px; padding-top:0; padding-bottom:0; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Fraunces', serif; font-size:1.25rem; letter-spacing:0.2px; }
+  .brand .mark{ width:34px; height:34px; border-radius:50%; background:var(--ink); color:var(--paper); display:flex; align-items:center; justify-content:center; font-size:1.05rem; }
+  nav ul{ display:flex; gap:32px; list-style:none; margin:0; padding:0; font-size:0.95rem; }
+  nav ul a{ text-decoration:none; color:var(--ink-soft); border-bottom:1px solid transparent; padding-bottom:3px; transition:border-color .2s ease, color .2s ease; }
+  nav ul a:hover{ color:var(--ink); border-color:var(--rose); }
+  .nav-links{ display:flex; align-items:center; gap:32px; }
+  @media (max-width:640px){ .nav-links ul{ display:none; } }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding-top: 84px; position:relative; overflow:hidden; }
+  .hero .wrap{ position:relative; display:grid; grid-template-columns: 1.15fr 0.85fr; gap:56px; align-items:center; }
+  @media (max-width:900px){ .hero .wrap{ grid-template-columns:1fr; } }
+  .hero h1{ font-size: clamp(2.4rem, 5vw, 3.6rem); line-height:1.08; letter-spacing:-0.01em; max-width:14ch; }
+  .hero p.lede{ margin-top:22px; max-width:46ch; color:var(--ink-soft); font-size:1.12rem; }
+  .hero .cta-row{ display:flex; gap:16px; margin-top:36px; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:13px 26px; border-radius:999px; font-size:0.98rem; text-decoration:none; border:1px solid transparent; transition: transform .18s ease, box-shadow .18s ease; }
+  .btn:active{ transform: translateY(1px); }
+  .btn-primary{ background:var(--ink); color:var(--paper); }
+  .btn-primary:hover{ box-shadow: 0 8px 20px -8px rgba(51,32,43,0.55); }
+  .btn-ghost{ border-color:var(--line); color:var(--ink); }
+  .btn-ghost:hover{ border-color:var(--rose); color:var(--rose-deep); }
+
+  .hero-art{ position:relative; aspect-ratio: 4/5; border-radius: 28px; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 20% 15%, #F3D9C8 0%, transparent 55%),
+      radial-gradient(110% 90% at 85% 80%, #E9B7C1 0%, transparent 55%),
+      linear-gradient(160deg, #3B2531 0%, #6B3A4C 60%, #B65C6E 100%);
+  }
+  .hero-art::before{
+    content:""; position:absolute; inset:14px; border-radius:20px; border:1px solid rgba(255,255,255,0.35);
+  }
+  .hero-art .tag{
+    position:absolute; left:22px; bottom:22px; right:22px;
+    color:#FBF6F2; font-family:'Fraunces', serif; font-style:italic; font-size:1.3rem;
+    text-shadow: 0 2px 18px rgba(0,0,0,0.25);
+  }
+  .fade-in{ opacity:0; transform: translateY(14px); animation: fadeUp .8s ease forwards; }
+  .fade-in.d2{ animation-delay:.12s; } .fade-in.d3{ animation-delay:.22s; }
+  @keyframes fadeUp{ to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ .fade-in{ opacity:1; transform:none; animation:none; } }
+
+  /* ---------- Cómo funciona ---------- */
+  .steps{ background:var(--paper-2); }
+  .steps h2{ font-size: clamp(1.7rem, 3vw, 2.3rem); max-width: 20ch; }
+  .steps .lede{ color:var(--ink-soft); max-width:60ch; margin-top:14px; }
+  .step-list{ margin-top:56px; display:grid; gap:0; }
+  .step{ position:relative; display:grid; grid-template-columns: 120px 1fr; gap:28px; padding:34px 0; border-top:1px solid var(--line); align-items:start; }
+  .step:last-child{ border-bottom:1px solid var(--line); }
+  .step .num{ font-family:'Fraunces', serif; font-size:4.2rem; line-height:1; color:transparent; -webkit-text-stroke: 1.4px var(--rose); opacity:0.55; }
+  .step h3{ font-size:1.25rem; margin-bottom:8px; }
+  .step p{ color:var(--ink-soft); max-width:52ch; margin:0; }
+  @media (max-width:640px){ .step{ grid-template-columns: 64px 1fr; } .step .num{ font-size:2.4rem; } }
+
+  /* ---------- Categorías ---------- */
+  .cats h2{ font-size: clamp(1.7rem, 3vw, 2.3rem); max-width:22ch; }
+  .cats .lede{ color:var(--ink-soft); max-width:58ch; margin-top:14px; }
+  .cat-grid{ margin-top:52px; display:grid; grid-template-columns: repeat(3, 1fr); gap:24px; }
+  @media (max-width:860px){ .cat-grid{ grid-template-columns:1fr; } }
+  .cat{ border-radius:20px; padding:28px 24px; min-height:220px; display:flex; flex-direction:column; justify-content:flex-end; position:relative; overflow:hidden; }
+  .cat h3{ color:#FBF6F2; font-size:1.35rem; position:relative; z-index:1; }
+  .cat p{ color:rgba(251,246,242,0.86); font-size:0.94rem; margin:8px 0 0; position:relative; z-index:1; max-width:30ch; }
+  .cat.c1{ background: linear-gradient(150deg,#4A2B3A 0%, #8F3F52 100%); }
+  .cat.c2{ background: linear-gradient(150deg,#3B2531 0%, #A9853F 130%); }
+  .cat.c3{ background: linear-gradient(150deg,#5B3A47 0%, #C97B84 100%); }
+  .cat::after{ content:""; position:absolute; right:-30px; top:-30px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.10); }
+
+  /* ---------- Por qué ---------- */
+  .why .wrap{ display:grid; grid-template-columns: 0.9fr 1.1fr; gap:64px; align-items:start; }
+  @media (max-width:860px){ .why .wrap{ grid-template-columns:1fr; } }
+  .why h2{ font-size: clamp(1.7rem, 3vw, 2.3rem); max-width:16ch; }
+  .why .col p{ color:var(--ink-soft); max-width:56ch; }
+  .why .col p + p{ margin-top:16px; }
+  .why blockquote{ font-family:'Fraunces', serif; font-style:italic; font-size:1.5rem; line-height:1.4; color:var(--ink); margin:0 0 20px; max-width:22ch; }
+  .why cite{ display:block; margin-top:14px; font-style:normal; font-family:'Work Sans'; font-size:0.9rem; color:var(--taupe); }
+
+  /* ---------- CTA final ---------- */
+  .cta-final{ background:var(--ink); color:var(--paper); border-radius:28px; margin:0 28px 96px; padding:64px 40px; text-align:center; }
+  .cta-final .wrap{ padding:0; max-width:640px; }
+  .cta-final h2{ color:var(--paper); font-size:clamp(1.6rem,3vw,2.1rem); }
+  .cta-final p{ color:rgba(251,246,242,0.78); margin-top:14px; }
+  .cta-final .cta-row{ justify-content:center; margin-top:30px; }
+  .cta-final .btn-primary{ background:var(--rose); }
+  .cta-final .btn-ghost{ border-color:rgba(251,246,242,0.35); color:var(--paper); }
+  .cta-final .btn-ghost:hover{ border-color:var(--rose); }
+
+  /* ---------- Footer ---------- */
+  footer{ padding: 48px 0 40px; border-top:1px solid var(--line); }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:flex-end; gap:24px; flex-wrap:wrap; }
+  footer .f-brand{ font-family:'Fraunces', serif; font-size:1.1rem; }
+  footer .f-note{ color:var(--taupe); font-size:0.85rem; max-width:38ch; margin-top:8px; }
+  footer .f-links{ display:flex; gap:20px; list-style:none; padding:0; margin:0; font-size:0.9rem; }
+  footer .f-links a{ text-decoration:none; color:var(--ink-soft); }
+  footer .f-links a:hover{ color:var(--rose-deep); }
+
+  :focus-visible{ outline: 2px solid var(--rose-deep); outline-offset: 3px; }
+
+  /* ---------- Cart button ---------- */
+  .cart-btn{ position:relative; background:none; border:1px solid var(--line); border-radius:999px; padding:9px 16px; font-size:0.95rem; cursor:pointer; color:var(--ink); font-family:'Work Sans'; }
+  .cart-btn:hover{ border-color:var(--rose); }
+  #cartCount{ font-weight:600; }
+
+  /* ---------- Category filters ---------- */
+  .cat-filters{ display:flex; gap:10px; flex-wrap:wrap; margin-top:36px; }
+  .filter-pill{ border:1px solid var(--line); background:transparent; border-radius:999px; padding:9px 18px; font-size:0.92rem; font-family:'Work Sans'; cursor:pointer; color:var(--ink-soft); }
+  .filter-pill.active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .cat-loading{ color:var(--taupe); font-style:italic; }
+
+  /* ---------- Product cards ---------- */
+  .cat-grid.products{ grid-template-columns: repeat(3, 1fr); align-items:stretch; }
+  @media (max-width:860px){ .cat-grid.products{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .cat-grid.products{ grid-template-columns:1fr; } }
+  .product-card{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:22px; display:flex; flex-direction:column; min-height:auto; }
+  .product-card .swatch{ height:86px; border-radius:12px; margin-bottom:16px; }
+  .product-card h3{ font-size:1.08rem; color:var(--ink); margin:0; }
+  .product-card .desc{ color:var(--ink-soft); font-size:0.88rem; margin:8px 0 14px; flex:1; }
+  .product-card .price-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .product-card .price{ font-family:'Fraunces', serif; font-size:1.2rem; }
+  .product-card .stock{ font-size:0.78rem; padding:3px 10px; border-radius:999px; }
+  .stock.in{ background:#E2EFDA; color:#2E5330; }
+  .stock.out{ background:#FCE4E4; color:#8A2A2A; }
+  .qty-row{ display:flex; align-items:center; gap:10px; }
+  .qty-row button.step{ width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:#fff; cursor:pointer; font-size:1rem; line-height:1; }
+  .qty-row input{ width:40px; text-align:center; border:none; font-family:'Work Sans'; font-size:0.95rem; }
+  .add-btn{ margin-top:14px; width:100%; padding:10px; border-radius:999px; border:none; background:var(--ink); color:var(--paper); cursor:pointer; font-family:'Work Sans'; font-size:0.92rem; }
+  .add-btn:disabled{ background:#D8D0D2; color:#8a8082; cursor:not-allowed; }
+
+  /* ---------- Drawer / overlay ---------- */
+  .overlay{ position:fixed; inset:0; background:rgba(51,32,43,0.35); z-index:40; opacity:0; pointer-events:none; transition:opacity .25s ease; }
+  .overlay.open{ opacity:1; pointer-events:auto; }
+  .drawer{ position:fixed; top:0; right:0; height:100%; width:min(420px, 100vw); background:var(--paper); z-index:50; box-shadow:-10px 0 30px rgba(0,0,0,0.15); transform:translateX(100%); transition:transform .3s ease; display:flex; flex-direction:column; padding-top: env(safe-area-inset-top,0px); padding-bottom: env(safe-area-inset-bottom,0px); }
+  .drawer.open{ transform:translateX(0); }
+  .drawer-head{ display:flex; align-items:center; justify-content:space-between; padding:22px 24px; border-bottom:1px solid var(--line); }
+  .drawer-head h3{ font-size:1.2rem; }
+  .drawer-close{ background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--ink-soft); }
+  .drawer-body{ padding:20px 24px; overflow-y:auto; flex:1; }
+  .drawer-foot{ padding:18px 24px 24px; border-top:1px solid var(--line); }
+  .cart-line{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); }
+  .cart-line .name{ font-size:0.95rem; }
+  .cart-line .sub{ color:var(--taupe); font-size:0.82rem; }
+  .cart-line .remove{ background:none; border:none; color:var(--taupe); cursor:pointer; font-size:0.85rem; text-decoration:underline; }
+  .empty-cart{ color:var(--taupe); font-style:italic; padding:30px 0; text-align:center; }
+  .total-row{ display:flex; justify-content:space-between; font-family:'Fraunces', serif; font-size:1.15rem; margin-bottom:14px; }
+  .full-btn{ width:100%; padding:13px; border-radius:999px; border:none; background:var(--ink); color:var(--paper); cursor:pointer; font-family:'Work Sans'; font-size:0.98rem; }
+  .full-btn:disabled{ background:#D8D0D2; color:#8a8082; cursor:not-allowed; }
+  .back-link{ display:inline-block; margin-bottom:14px; background:none; border:none; color:var(--ink-soft); cursor:pointer; font-family:'Work Sans'; font-size:0.88rem; padding:0; }
+
+  /* ---------- Checkout form ---------- */
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:0.85rem; color:var(--ink-soft); margin-bottom:6px; }
+  .field input, .field select, .field textarea{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+    font-family:'Work Sans'; font-size:0.95rem; background:#fff; color:var(--ink);
+  }
+  .field textarea{ resize:vertical; min-height:64px; }
+  .form-msg{ font-size:0.85rem; margin-top:10px; }
+  .form-msg.error{ color:#8A2A2A; }
+
+  /* ---------- Confirmation ---------- */
+  .confirm-box{ text-align:center; padding:20px 0; }
+  .confirm-box .code{ font-family:'Fraunces', serif; font-size:1.7rem; margin:14px 0; color:var(--rose-deep); }
+  .confirm-box .status-pill{ display:inline-block; padding:4px 14px; border-radius:999px; font-size:0.82rem; margin-bottom:10px; }
+  .confirm-box p.detail{ color:var(--ink-soft); font-size:0.92rem; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="brand"><span class="mark">✷</span> Belleza Conceptual</div>
+    <div class="nav-links">
+      <ul>
+        <li><a href="#como-funciona">Cómo funciona</a></li>
+        <li><a href="#catalogo">Catálogo</a></li>
+        <li><a href="#por-que">Nosotros</a></li>
+      </ul>
+      <button class="cart-btn" id="cartBtn" aria-label="Ver carrito" type="button">
+        🛍️ <span id="cartCount">0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1 class="fade-in">Tu ritual de belleza, ahora también en línea</h1>
+        <p class="lede fade-in d2">Belleza Conceptual lleva su catálogo de cuidado personal más allá de la sucursal. Consultá los productos, armá tu pedido y coordinamos con vos el pago y la entrega.</p>
+        <div class="cta-row fade-in d3">
+          <a class="btn btn-primary" href="#como-funciona">Ver cómo funciona</a>
+          <a class="btn btn-ghost" href="#catalogo">Ver el catálogo</a>
+        </div>
+      </div>
+      <div class="hero-art fade-in d2" aria-hidden="true">
+        <span class="tag">cuidado facial · maquillaje · cuidado capilar</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="steps" id="como-funciona">
+    <div class="wrap">
+      <h2>Pedir es simple, y siempre hay alguien confirmando cada paso</h2>
+      <p class="lede">Nada se factura solo ni al azar: cada pedido pasa por manos del equipo antes de darse por confirmado.</p>
+      <div class="step-list">
+        <div class="step">
+          <div class="num">1</div>
+          <div><h3>Explorás el catálogo y armás tu pedido</h3>
+          <p>Revisás productos, precios y disponibilidad, y agregás lo que querés a tu pedido junto con tus datos de contacto.</p></div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div><h3>Confirmamos disponibilidad y coordinamos el pago</h3>
+          <p>Revisamos existencias reales y te contactamos para acordar el método: enlace de pago en línea, depósito bancario o contra entrega.</p></div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div><h3>Coordinamos la entrega</h3>
+          <p>Una vez confirmado el pago, acordamos con vos la entrega a domicilio o la recolección en sucursal.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cats" id="catalogo">
+    <div class="wrap">
+      <h2>Un catálogo pensado por rutina, no por estante</h2>
+      <p class="lede">Este es el catálogo real de la tienda. Elegí productos y agregalos a tu pedido; nosotros confirmamos existencia y coordinamos el pago.</p>
+      <div class="cat-filters" id="catFilters" aria-label="Filtrar por categoría"></div>
+      <div class="cat-grid products" id="productGrid">
+        <p class="cat-loading">Cargando catálogo…</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="why" id="por-que">
+    <div class="wrap">
+      <div>
+        <h2>Por qué existe este canal</h2>
+      </div>
+      <div class="col">
+        <blockquote>“Un negocio que solo vende cuando alguien cruza la puerta, deja de vender el día que nadie puede cruzarla.”</blockquote>
+        <p>Belleza Conceptual operó siempre desde su sucursal física. Funcionó, hasta que un cierre por completo fuera de su control detuvo las ventas de un día para otro.</p>
+        <p>Este canal en línea no reemplaza la tienda: es el respaldo que antes no existía. El mismo catálogo, la misma atención personalizada, ahora también accesible sin depender de un horario ni de una dirección.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="cta-final">
+      <div class="wrap">
+        <h2>¿Ya sabés qué querés pedir?</h2>
+        <p>Escribinos y te ayudamos a armar tu pedido, resolver dudas sobre productos o coordinar tu compra.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://wa.me/50200000000" target="_blank" rel="noopener">Escribinos por WhatsApp</a>
+          <a class="btn btn-ghost" href="mailto:hola@bellezaconceptual.gt">Escribir un correo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="f-brand">Belleza Conceptual</div>
+      <div class="f-note">Distribución de artículos de belleza en Guatemala. Este sitio es el canal digital complementario a nuestra sucursal física.</div>
+    </div>
+    <ul class="f-links">
+      <li><a href="#como-funciona">Cómo funciona</a></li>
+      <li><a href="#catalogo">Catálogo</a></li>
+      <li><a href="#por-que">Nosotros</a></li>
+    </ul>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="Carrito y pedido">
+  <div class="drawer-head">
+    <h3 id="drawerTitle">Tu pedido</h3>
+    <button class="drawer-close" id="drawerClose" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"><!-- se llena por JS --></div>
+  <div class="drawer-foot" id="drawerFoot"><!-- se llena por JS --></div>
+</aside>
+
+<script>
+(function(){
+  // Frontend y API se sirven desde el mismo dominio en Render.
+  const API_BASE = "";
+
+  const state = { products: [], category: "Todas", cart: [], step: "cart" };
+
+  const grid = document.getElementById("productGrid");
+  const filters = document.getElementById("catFilters");
+  const overlay = document.getElementById("overlay");
+  const drawer = document.getElementById("drawer");
+  const drawerTitle = document.getElementById("drawerTitle");
+  const drawerBody = document.getElementById("drawerBody");
+  const drawerFoot = document.getElementById("drawerFoot");
+  const cartCount = document.getElementById("cartCount");
+
+  function money(n){ return "Q" + Number(n).toFixed(2); }
+
+  async function loadProducts(){
+    try {
+      const res = await fetch(`${API_BASE}/api/products`);
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      state.products = await res.json();
+      renderFilters();
+      renderGrid();
+    } catch(err){
+      grid.innerHTML = `<p class="cat-loading">No se pudo cargar el catálogo (${API_BASE}). Verificá que el backend esté corriendo y que API_BASE sea correcto.</p>`;
+    }
+  }
+
+  function renderFilters(){
+    const cats = ["Todas", ...new Set(state.products.map(p => p.categoria))];
+    filters.innerHTML = cats.map(c =>
+      `<button class="filter-pill ${c===state.category?'active':''}" data-cat="${c}">${c}</button>`
+    ).join("");
+    filters.querySelectorAll(".filter-pill").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ state.category = btn.dataset.cat; renderFilters(); renderGrid(); });
+    });
+  }
+
+  function renderGrid(){
+    const list = state.category === "Todas" ? state.products : state.products.filter(p=>p.categoria===state.category);
+    if(list.length === 0){ grid.innerHTML = `<p class="cat-loading">No hay productos en esta categoría.</p>`; return; }
+    grid.innerHTML = list.map(p=>{
+      const out = p.cantidad_disponible <= 0;
+      return `
+      <div class="product-card">
+        <div class="swatch" style="background:linear-gradient(135deg,#8F3F52,#C97B84)"></div>
+        <h3>${p.nombre}</h3>
+        <p class="desc">${p.descripcion || ""}</p>
+        <div class="price-row">
+          <span class="price">${money(p.precio)}</span>
+          <span class="stock ${out?'out':'in'}">${out ? "Agotado" : p.cantidad_disponible + " disponibles"}</span>
+        </div>
+        ${out ? `<button class="add-btn" disabled>Sin existencia</button>` : `
+        <div class="qty-row">
+          <button class="step" data-act="dec" data-id="${p.id_producto}">-</button>
+          <input type="text" inputmode="numeric" value="1" id="qty-${p.id_producto}" readonly>
+          <button class="step" data-act="inc" data-id="${p.id_producto}">+</button>
+        </div>
+        <button class="add-btn" data-add="${p.id_producto}">Agregar al carrito</button>
+        `}
+      </div>`;
+    }).join("");
+
+    grid.querySelectorAll("[data-act]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.dataset.id;
+        const input = document.getElementById("qty-"+id);
+        let v = parseInt(input.value,10) || 1;
+        const prod = state.products.find(p=>String(p.id_producto)===id);
+        if(btn.dataset.act==="inc") v = Math.min(v+1, prod.cantidad_disponible);
+        else v = Math.max(1, v-1);
+        input.value = v;
+      });
+    });
+    grid.querySelectorAll("[data-add]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = parseInt(btn.dataset.add,10);
+        const prod = state.products.find(p=>p.id_producto===id);
+        const qty = parseInt(document.getElementById("qty-"+id).value,10) || 1;
+        const existing = state.cart.find(l=>l.id_producto===id);
+        if(existing) existing.cantidad = Math.min(existing.cantidad + qty, prod.cantidad_disponible);
+        else state.cart.push({ id_producto:id, nombre:prod.nombre, precio:Number(prod.precio), cantidad:qty, max:prod.cantidad_disponible });
+        updateCartCount();
+        openDrawer("cart");
+      });
+    });
+  }
+
+  function updateCartCount(){
+    cartCount.textContent = state.cart.reduce((a,l)=>a+l.cantidad,0);
+  }
+
+  function cartTotal(){ return state.cart.reduce((a,l)=>a+l.precio*l.cantidad,0); }
+
+  function renderCartStep(){
+    drawerTitle.textContent = "Tu pedido";
+    if(state.cart.length===0){
+      drawerBody.innerHTML = `<p class="empty-cart">Tu carrito está vacío. Agregá productos desde el catálogo.</p>`;
+      drawerFoot.innerHTML = "";
+      return;
+    }
+    drawerBody.innerHTML = state.cart.map(l=>`
+      <div class="cart-line">
+        <div>
+          <div class="name">${l.nombre}</div>
+          <div class="sub">${l.cantidad} × ${money(l.precio)} = ${money(l.precio*l.cantidad)}</div>
+        </div>
+        <button class="remove" data-rm="${l.id_producto}">Quitar</button>
+      </div>
+    `).join("");
+    drawerBody.querySelectorAll("[data-rm]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        state.cart = state.cart.filter(l=>String(l.id_producto)!==btn.dataset.rm);
+        updateCartCount(); renderCartStep();
+      });
+    });
+    drawerFoot.innerHTML = `
+      <div class="total-row"><span>Total</span><span>${money(cartTotal())}</span></div>
+      <button class="full-btn" id="toCheckout">Continuar con mi pedido</button>
+    `;
+    document.getElementById("toCheckout").addEventListener("click", ()=>openDrawer("checkout"));
+  }
+
+  function renderCheckoutStep(){
+    drawerTitle.textContent = "Tus datos";
+    drawerBody.innerHTML = `
+      <button class="back-link" id="backToCart">← Volver al carrito</button>
+      <div class="field"><label for="f-nombre">Nombre completo *</label><input id="f-nombre" required></div>
+      <div class="field"><label for="f-tel">Teléfono *</label><input id="f-tel" required></div>
+      <div class="field"><label for="f-email">Correo</label><input id="f-email" type="email"></div>
+      <div class="field"><label for="f-dir">Dirección de entrega</label><textarea id="f-dir"></textarea></div>
+      <div class="field"><label for="f-pago">Método de pago preferido</label>
+        <select id="f-pago">
+          <option>Enlace de pago</option>
+          <option>Depósito bancario</option>
+          <option>Contra entrega</option>
+        </select>
+      </div>
+      <div class="field"><label for="f-com">Comentarios</label><textarea id="f-com"></textarea></div>
+      <p class="form-msg error" id="formMsg" style="display:none;"></p>
+    `;
+    document.getElementById("backToCart").addEventListener("click", ()=>openDrawer("cart"));
+    drawerFoot.innerHTML = `
+      <div class="total-row"><span>Total</span><span>${money(cartTotal())}</span></div>
+      <button class="full-btn" id="submitOrder">Enviar pedido</button>
+    `;
+    document.getElementById("submitOrder").addEventListener("click", submitOrder);
+  }
+
+  async function submitOrder(){
+    const nombre = document.getElementById("f-nombre").value.trim();
+    const telefono = document.getElementById("f-tel").value.trim();
+    const msg = document.getElementById("formMsg");
+    if(!nombre || !telefono){
+      msg.textContent = "Nombre y teléfono son obligatorios.";
+      msg.style.display = "block";
+      return;
+    }
+    const payload = {
+      cliente: {
+        nombre, telefono,
+        email: document.getElementById("f-email").value.trim() || null,
+        direccion: document.getElementById("f-dir").value.trim() || null,
+      },
+      items: state.cart.map(l=>({ id_producto: l.id_producto, cantidad: l.cantidad })),
+      metodo_pago_preferido: document.getElementById("f-pago").value,
+      comentarios: document.getElementById("f-com").value.trim() || null,
+    };
+    const btn = document.getElementById("submitOrder");
+    btn.disabled = true; btn.textContent = "Enviando…";
+    try{
+      const res = await fetch(`${API_BASE}/api/orders`, {
+        method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || "Error al enviar el pedido");
+      state.cart = []; updateCartCount();
+      renderConfirmStep(data);
+    } catch(err){
+      msg.textContent = err.message; msg.style.display = "block";
+      btn.disabled = false; btn.textContent = "Enviar pedido";
+    }
+  }
+
+  function renderConfirmStep(data){
+    drawerTitle.textContent = "Pedido recibido";
+    const pillClass = data.revision_requerida ? "out" : "in";
+    drawerBody.innerHTML = `
+      <div class="confirm-box">
+        <span class="status-pill stock ${pillClass}">${data.estado_actual}</span>
+        <div class="code">${data.codigo_pedido}</div>
+        <p>${data.mensaje}</p>
+        <p class="detail">Total: ${money(data.total)}</p>
+        ${data.revision_requerida ? `<p class="detail">${data.detalle_no_disponible.join(" · ")}</p>` : ""}
+      </div>
+    `;
+    drawerFoot.innerHTML = `<button class="full-btn" id="closeConfirm">Listo</button>`;
+    document.getElementById("closeConfirm").addEventListener("click", closeDrawer);
+  }
+
+  function openDrawer(step){
+    state.step = step;
+    if(step==="cart") renderCartStep();
+    else if(step==="checkout") renderCheckoutStep();
+    overlay.classList.add("open");
+    drawer.classList.add("open");
+  }
+  function closeDrawer(){
+    overlay.classList.remove("open");
+    drawer.classList.remove("open");
+  }
+
+  document.getElementById("cartBtn").addEventListener("click", ()=>openDrawer(state.cart.length?"cart":"cart"));
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  overlay.addEventListener("click", closeDrawer);
+
+  loadProducts();
+})();
+</script>
+</body>
+</html>
