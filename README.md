@@ -1,4 +1,4 @@
-# Belleza Conceptual — versión lista para Render
+# Belleza Conceptual
 
 Proyecto mínimo funcional para la entrega de Calidad de Software:
 
