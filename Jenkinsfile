@@ -1,42 +1,72 @@
 pipeline {
     agent any
 
+    options {
+        disableConcurrentBuilds()
+        timeout(time: 20, unit: 'MINUTES')
+    }
+
     environment {
-        BASE_URL = 'https://belleza-conceptual.onrender.com'
+        BASE_URL = 'http://belleza-staging-app-1:3002'
         HEADLESS = 'true'
     }
 
     stages {
-
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'devops-sprint2',
+                    url: 'https://github.com/AnEstuardoBarriosg/belleza-conceptual.git'
             }
         }
 
         stage('Build') {
             steps {
-                bat '''
-                    node --version
-                    npm --version
+                sh '''
+                    npm ci
+                    python3 -m venv .venv
+                    .venv/bin/python -m pip install -r requirements.txt
 
-                    if exist package-lock.json (
-                        npm ci
-                    ) else (
-                        npm install
-                    )
+                    rm -f pytest-results*.xml report*.html
                 '''
             }
         }
 
         stage('Test') {
             steps {
-                bat '''
-                    python --version
-                    python -m venv .venv
-                    .venv\\Scripts\\python.exe -m pip install --upgrade pip
-                    .venv\\Scripts\\python.exe -m pip install -r requirements.txt
-                    .venv\\Scripts\\python.exe -m pytest -v --junitxml=pytest-results.xml --html=report.html --self-contained-html
+                sh '''
+                    .venv/bin/python -m pytest -v \
+                        --junitxml=pytest-results.xml \
+                        --html=report.html \
+                        --self-contained-html
+                '''
+            }
+        }
+
+        stage('Deploy Staging') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'staging-db-password',
+                        variable: 'STAGING_DB_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        docker compose -f compose.staging.yaml \
+                            up -d --build --wait --wait-timeout 180
+
+                        docker compose -f compose.staging.yaml ps
+                    '''
+                }
+            }
+        }
+
+        stage('Verify Staging') {
+            steps {
+                sh '''
+                    .venv/bin/python -m pytest -v \
+                        --junitxml=pytest-results-staging.xml \
+                        --html=report-staging.html \
+                        --self-contained-html
                 '''
             }
         }
@@ -44,9 +74,10 @@ pipeline {
 
     post {
         always {
-            junit allowEmptyResults: true, testResults: 'pytest-results.xml'
+            junit allowEmptyResults: true,
+                  testResults: 'pytest-results*.xml'
 
-            archiveArtifacts artifacts: 'report.html',
+            archiveArtifacts artifacts: 'report*.html',
                              allowEmptyArchive: true
         }
     }

@@ -1,0 +1,43 @@
+name: belleza-staging
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: belleza_staging
+      POSTGRES_USER: belleza_staging
+      POSTGRES_PASSWORD: ${STAGING_DB_PASSWORD:?Define STAGING_DB_PASSWORD}
+    volumes:
+      - staging_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U belleza_staging -d belleza_staging"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: "3002"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: belleza_staging
+      DB_USER: belleza_staging
+      DB_PASSWORD: ${STAGING_DB_PASSWORD:?Define STAGING_DB_PASSWORD}
+      DB_SSL: "false"
+    ports:
+      - "${STAGING_BIND_ADDRESS:-127.0.0.1}:${STAGING_PORT:-3003}:3002"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3002/health').then(async r=>{const b=await r.json();process.exit(r.ok&&b.db==='up'?0:1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+volumes:
+  staging_data:

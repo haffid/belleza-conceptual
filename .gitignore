@@ -8,3 +8,6 @@ npm-debug.log*
 .pytest_cache/
 __pycache__/
 report.html
+!.env.staging.example
+report-staging.html
+pytest-results*.xml
