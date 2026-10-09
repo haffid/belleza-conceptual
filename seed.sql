@@ -1,3 +1,4 @@
+-- LEGADO: para la tienda actual usar npm run seed; ver README.md.
 INSERT INTO categoria (nombre, descripcion, estado) VALUES
   ('Cuidado facial', 'Limpieza, hidratación y tratamientos para el rostro', true),
   ('Maquillaje', 'Color y acabado para el día a día o una ocasión especial', true),

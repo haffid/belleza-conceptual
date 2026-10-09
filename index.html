@@ -53,7 +53,7 @@
   nav ul a{ text-decoration:none; color:var(--ink-soft); border-bottom:1px solid transparent; padding-bottom:3px; transition:border-color .2s ease, color .2s ease; }
   nav ul a:hover{ color:var(--ink); border-color:var(--rose); }
   .nav-links{ display:flex; align-items:center; gap:32px; }
-  @media (max-width:640px){ .nav-links ul{ display:none; } }
+  @media (max-width:640px){ .nav-links ul{ display:none; } .nav-links{gap:8px} nav.wrap{padding:0 12px}.brand{font-size:1rem}.cart-btn{padding:8px 10px} }
 
   /* ---------- Hero ---------- */
   .hero{ padding-top: 84px; position:relative; overflow:hidden; }
@@ -218,6 +218,7 @@
   <nav class="wrap">
     <div class="brand"><span class="mark">✷</span> Belleza Conceptual</div>
     <div class="nav-links">
+      <a href="/cuenta" class="cart-btn" style="text-decoration:none">Mi cuenta</a>
       <ul>
         <li><a href="#como-funciona">Cómo funciona</a></li>
         <li><a href="#catalogo">Catálogo</a></li>
@@ -249,8 +250,8 @@
 
   <section class="steps" id="como-funciona">
     <div class="wrap">
-      <h2>Pedir es simple, y siempre hay alguien confirmando cada paso</h2>
-      <p class="lede">Nada se factura solo ni al azar: cada pedido pasa por manos del equipo antes de darse por confirmado.</p>
+      <h2>Tu próxima rutina de belleza, en tres pasos</h2>
+      <p class="lede">Crea tu cuenta, elige tus productos y sigue tu pedido desde un solo lugar.</p>
       <div class="step-list">
         <div class="step">
           <div class="num">1</div>
@@ -259,8 +260,8 @@
         </div>
         <div class="step">
           <div class="num">2</div>
-          <div><h3>Confirmamos disponibilidad y coordinamos el pago</h3>
-          <p>Revisamos existencias reales y te contactamos para acordar el método: enlace de pago en línea, depósito bancario o contra entrega.</p></div>
+          <div><h3>Confirmás tu compra y elegís cómo pagar</h3>
+          <p>Al confirmar reservamos tus productos. Puedes elegir depósito bancario o pago contra entrega.</p></div>
         </div>
         <div class="step">
           <div class="num">3</div>
@@ -274,7 +275,7 @@
   <section class="cats" id="catalogo">
     <div class="wrap">
       <h2>Un catálogo pensado por rutina, no por estante</h2>
-      <p class="lede">Este es el catálogo real de la tienda. Elegí productos y agregalos a tu pedido; nosotros confirmamos existencia y coordinamos el pago.</p>
+      <p class="lede">Elegí tus productos, consultá las existencias y agregalos al carrito. Inicia sesión para confirmar tu compra.</p>
       <div class="cat-filters" id="catFilters" aria-label="Filtrar por categoría"></div>
       <div class="cat-grid products" id="productGrid">
         <p class="cat-loading">Cargando catálogo…</p>
@@ -299,10 +300,10 @@
     <div class="cta-final">
       <div class="wrap">
         <h2>¿Ya sabés qué querés pedir?</h2>
-        <p>Escribinos y te ayudamos a armar tu pedido, resolver dudas sobre productos o coordinar tu compra.</p>
+        <p>Encuentra tus favoritos, crea tu cuenta y consulta tus pedidos cuando quieras.</p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://wa.me/50200000000" target="_blank" rel="noopener">Escribinos por WhatsApp</a>
-          <a class="btn btn-ghost" href="mailto:hola@bellezaconceptual.gt">Escribir un correo</a>
+          <a class="btn btn-primary" href="#catalogo">Comprar ahora</a>
+          <a class="btn btn-ghost" href="/cuenta">Mi cuenta y pedidos</a>
         </div>
       </div>
     </div>
@@ -335,10 +336,13 @@
 
 <script>
 (function(){
-  // Frontend y API se sirven desde el mismo dominio en Render.
+  // Frontend y API comparten dominio.
   const API_BASE = "";
 
-  const state = { products: [], category: "Todas", cart: [], step: "cart" };
+  let savedCart = [];
+  try { savedCart = JSON.parse(localStorage.getItem('bc_cart') || '[]'); } catch {}
+  const state = { products: [], category: "Todas", cart: Array.isArray(savedCart) ? savedCart.filter(l => Number.isInteger(l.id_producto) && Number.isInteger(l.cantidad) && l.cantidad > 0) : [], step: "cart", user: null };
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   const grid = document.getElementById("productGrid");
   const filters = document.getElementById("catFilters");
@@ -356,6 +360,11 @@
       const res = await fetch(`${API_BASE}/api/products`);
       if(!res.ok) throw new Error("HTTP " + res.status);
       state.products = await res.json();
+      state.cart = state.cart.filter(l => state.products.some(p => p.id_producto === l.id_producto && p.cantidad_disponible > 0)).map(l => {
+        const p = state.products.find(p => p.id_producto === l.id_producto);
+        return { ...l, nombre: p.nombre, precio: Number(p.precio), cantidad: Math.min(l.cantidad, p.cantidad_disponible), max: p.cantidad_disponible };
+      });
+      updateCartCount();
       renderFilters();
       renderGrid();
     } catch(err){
@@ -366,7 +375,7 @@
   function renderFilters(){
     const cats = ["Todas", ...new Set(state.products.map(p => p.categoria))];
     filters.innerHTML = cats.map(c =>
-      `<button class="filter-pill ${c===state.category?'active':''}" data-cat="${c}">${c}</button>`
+      `<button class="filter-pill ${c===state.category?'active':''}" data-cat="${esc(c)}">${esc(c)}</button>`
     ).join("");
     filters.querySelectorAll(".filter-pill").forEach(btn=>{
       btn.addEventListener("click", ()=>{ state.category = btn.dataset.cat; renderFilters(); renderGrid(); });
@@ -380,9 +389,9 @@
       const out = p.cantidad_disponible <= 0;
       return `
       <div class="product-card">
-        <div class="swatch" style="background:linear-gradient(135deg,#8F3F52,#C97B84)"></div>
-        <h3>${p.nombre}</h3>
-        <p class="desc">${p.descripcion || ""}</p>
+        ${p.imagenes?.length ? `<div style="display:flex;gap:8px;overflow:auto;margin-bottom:16px">${p.imagenes.map(url => `<img src="${esc(url)}" alt="${esc(p.nombre)}" loading="lazy" style="width:100%;min-width:100%;height:200px;object-fit:cover;border-radius:12px">`).join('')}</div>` : '<div class="swatch" style="background:linear-gradient(135deg,#8F3F52,#C97B84)"></div>'}
+        <h3>${esc(p.nombre)}</h3>
+        <p class="desc">${esc(p.descripcion)}</p>
         <div class="price-row">
           <span class="price">${money(p.precio)}</span>
           <span class="stock ${out?'out':'in'}">${out ? "Agotado" : p.cantidad_disponible + " disponibles"}</span>
@@ -425,6 +434,7 @@
 
   function updateCartCount(){
     cartCount.textContent = state.cart.reduce((a,l)=>a+l.cantidad,0);
+    try { localStorage.setItem('bc_cart', JSON.stringify(state.cart)); } catch {}
   }
 
   function cartTotal(){ return state.cart.reduce((a,l)=>a+l.precio*l.cantidad,0); }
@@ -439,7 +449,7 @@
     drawerBody.innerHTML = state.cart.map(l=>`
       <div class="cart-line">
         <div>
-          <div class="name">${l.nombre}</div>
+          <div class="name">${esc(l.nombre)}</div>
           <div class="sub">${l.cantidad} × ${money(l.precio)} = ${money(l.precio*l.cantidad)}</div>
         </div>
         <button class="remove" data-rm="${l.id_producto}">Quitar</button>
@@ -460,15 +470,19 @@
 
   function renderCheckoutStep(){
     drawerTitle.textContent = "Tus datos";
+    if (!state.user) {
+      drawerBody.innerHTML = '<p>Inicia sesión o crea una cuenta para confirmar tu compra. Tu carrito quedará guardado.</p><a class="btn btn-primary" href="/cuenta">Entrar o crear cuenta</a>';
+      drawerFoot.innerHTML = '';
+      return;
+    }
     drawerBody.innerHTML = `
       <button class="back-link" id="backToCart">← Volver al carrito</button>
       <div class="field"><label for="f-nombre">Nombre completo *</label><input id="f-nombre" required></div>
       <div class="field"><label for="f-tel">Teléfono *</label><input id="f-tel" required></div>
       <div class="field"><label for="f-email">Correo</label><input id="f-email" type="email"></div>
-      <div class="field"><label for="f-dir">Dirección de entrega</label><textarea id="f-dir"></textarea></div>
+      <div class="field"><label for="f-dir">Dirección de entrega *</label><textarea id="f-dir" required></textarea></div>
       <div class="field"><label for="f-pago">Método de pago preferido</label>
         <select id="f-pago">
-          <option>Enlace de pago</option>
           <option>Depósito bancario</option>
           <option>Contra entrega</option>
         </select>
@@ -477,6 +491,11 @@
       <p class="form-msg error" id="formMsg" style="display:none;"></p>
     `;
     document.getElementById("backToCart").addEventListener("click", ()=>openDrawer("cart"));
+    document.getElementById('f-nombre').value = state.user.nombre;
+    document.getElementById('f-tel').value = state.user.telefono;
+    document.getElementById('f-email').value = state.user.email;
+    document.getElementById('f-email').readOnly = true;
+    document.getElementById('f-dir').value = state.user.direccion;
     drawerFoot.innerHTML = `
       <div class="total-row"><span>Total</span><span>${money(cartTotal())}</span></div>
       <button class="full-btn" id="submitOrder">Enviar pedido</button>
@@ -488,8 +507,8 @@
     const nombre = document.getElementById("f-nombre").value.trim();
     const telefono = document.getElementById("f-tel").value.trim();
     const msg = document.getElementById("formMsg");
-    if(!nombre || !telefono){
-      msg.textContent = "Nombre y teléfono son obligatorios.";
+    if(!nombre || !telefono || !document.getElementById('f-dir').value.trim()){
+      msg.textContent = "Nombre, teléfono y dirección son obligatorios.";
       msg.style.display = "block";
       return;
     }
@@ -513,6 +532,7 @@
       if(!res.ok) throw new Error(data.error || "Error al enviar el pedido");
       state.cart = []; updateCartCount();
       renderConfirmStep(data);
+      await loadProducts();
     } catch(err){
       msg.textContent = err.message; msg.style.display = "block";
       btn.disabled = false; btn.textContent = "Enviar pedido";
@@ -526,7 +546,7 @@
       <div class="confirm-box">
         <span class="status-pill stock ${pillClass}">${data.estado_actual}</span>
         <div class="code">${data.codigo_pedido}</div>
-        <p>${data.mensaje}</p>
+        <p>${esc(data.mensaje)}</p>
         <p class="detail">Total: ${money(data.total)}</p>
         ${data.revision_requerida ? `<p class="detail">${data.detalle_no_disponible.join(" · ")}</p>` : ""}
       </div>
@@ -551,6 +571,7 @@
   document.getElementById("drawerClose").addEventListener("click", closeDrawer);
   overlay.addEventListener("click", closeDrawer);
 
+  fetch('/api/me').then(res => res.ok ? res.json() : null).then(user => { state.user = user; if(state.step === 'checkout') renderCheckoutStep(); }).catch(() => {});
   loadProducts();
 })();
 </script>

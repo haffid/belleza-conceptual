@@ -5,14 +5,23 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test store.test.js",
+    "admin:create": "node manage.js admin",
+    "seed": "node manage.js seed",
+    "db:migrate:postgres": "node migrate-postgres.js"
   },
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
     "cors": "^2.8.5",
+    "dotenv": "^18.0.6",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "multer": "^2.4.0",
     "pg": "^8.12.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   }
 }

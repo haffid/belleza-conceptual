@@ -1,3 +1,5 @@
+-- LEGADO: referencia del prototipo. La tienda actual crea tablas store_* desde db.js.
+-- No ejecutar este archivo para inicializar la tienda actual; ver README.md.
 -- Subconjunto del modelo relacional de Belleza Conceptual necesario para el
 -- flujo mínimo catálogo -> carrito -> pedido -> base de datos.
 -- Mismos nombres de tabla y columna que el modelo ya definido (Entregable 7 / E2).
