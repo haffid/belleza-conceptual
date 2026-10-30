@@ -16,7 +16,7 @@ Los nombres distinguen mayúsculas y minúsculas. Estas ramas organizan versione
 
 ## Desarrollo
 
-Prepararemos cada cambio en una rama corta, por ejemplo `docs/estrategia-ramas`, `test/unitarias-backend` o `test/unitarias-frontend`. La rama partirá de `DEV`. En el PR explicaremos qué problema resolvemos, qué archivos cambiamos y cómo lo validamos. Cada autor atenderá las observaciones antes de integrar su cambio.
+Prepararemos cada cambio en una rama corta, como `docs/e9-estrategia-ramas`, `test/e10-unitarias` o `ci/e9-e10`. La rama partirá de `DEV`. En el PR explicaremos qué problema resolvemos, qué archivos cambiamos y cómo lo validamos. Cada autor atenderá las observaciones antes de integrar su cambio.
 
 Mantendremos el historial del proyecto para identificar los aportes de cada integrante. Si un cambio incluye trabajo previo de otro compañero, indicaremos su procedencia.
 
@@ -46,15 +46,15 @@ Distribución propuesta de trabajo:
 
 | Cambio | Contenido | Revisión esperada |
 | --- | --- | --- |
-| Documentación y control de cambios | Política, plantilla y configuración del pipeline. | Consistencia del flujo y bloqueo de merges. |
-| Pruebas unitarias de backend | Casos de pedidos y catálogo; dobles de prueba. | Aislamiento, casos límite y reglas de negocio. |
-| Pruebas unitarias de frontend | Carrito, validaciones y tratamiento de errores. | Comportamiento de la interfaz y cobertura del alcance. |
+| Documentación y control de cambios (PR #1) | Política, plantilla, guía y registro de evidencias. | Consistencia del flujo y requisitos de bloqueo. |
+| Pruebas unitarias (PR #2) | 25 pruebas de backend/persistencia y 14 de frontend. | Aislamiento, casos límite, reglas y alcance de cobertura. |
+| Pipeline E9/E10 (PR #3) | Ejecución automática, artefactos y origen de promociones. | Propagación de fallos y check que se exigirá en QA/main. |
 
 Esta distribución nos servirá para organizar los aportes. Registraremos los PR y sus revisiones conforme los completemos. Las promociones entre ambientes podrán generar PR adicionales.
 
 ## Correcciones urgentes
 
-Si necesitamos una corrección urgente, crearemos una rama `hotfix/descripcion` desde `main`. Conservaremos la revisión y el pipeline obligatorio antes de integrarla mediante PR. Después propagaremos la corrección a QA y DEV mediante PR para mantener la consistencia entre las ramas.
+Si necesitamos una corrección urgente, crearemos una rama `hotfix/descripcion` desde `main` y la integraremos mediante PR en DEV. Conservaremos la revisión y el pipeline obligatorio y promoveremos la corrección por DEV a QA y de QA a main. Este recorrido evita una excepción que contradiga el control de origen de las promociones.
 
 ## Evidencia
 
