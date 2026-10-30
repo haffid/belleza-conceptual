@@ -1,0 +1,15 @@
+{
+  "review_date_guatemala": "2026-10-29",
+  "repository": "haffid/belleza-conceptual",
+  "application_commit": "f3768a14fc7345ff0145b0705574308bf6f19110",
+  "branches": {
+    "DEV": {"exists": true},
+    "QA": {"exists": true, "protected": false},
+    "main": {"exists": true, "protected": false}
+  },
+  "repository_rulesets": [],
+  "policy_pr": "https://github.com/haffid/belleza-conceptual/pull/1",
+  "policy_pr_human_reviews_at_initial_check": 0,
+  "merge_block_demonstrated": false,
+  "notes": "Estado consultado antes de configurar protecciones. No acredita el cierre de E9."
+}

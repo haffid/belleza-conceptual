@@ -1,0 +1,11 @@
+{
+  "kind": "verificación local de propagación; no prueba protección de GitHub",
+  "command": "node scripts/run-unit-tests.cjs",
+  "exit_code": 1,
+  "temporary_change": "aserción UT-FE-01 deliberadamente incorrecta, restaurada después",
+  "summary": [
+    "# tests 39",
+    "# pass 38",
+    "# fail 1"
+  ]
+}

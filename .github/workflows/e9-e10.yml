@@ -1,0 +1,45 @@
+name: E9-E10
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [DEV, QA, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e9-e10-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unitarias:
+    name: E9-E10 / pruebas-unitarias
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Obtener la revisión del PR
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Preparar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Verificar el origen de las promociones
+        run: node scripts/check-promotion.cjs
+      - name: Ejecutar unitarias y generar cobertura
+        run: npm run test:unit
+      - name: Comparar con el control inicial documentado
+        run: npm run test:unit:check
+      - name: Conservar resultados y cobertura
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e10-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/unit/
+          retention-days: 14
+          if-no-files-found: warn
