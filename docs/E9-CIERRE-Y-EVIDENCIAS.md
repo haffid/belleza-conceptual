@@ -16,6 +16,8 @@ Cada uno de los tres PR requiere revisión real desde la cuenta de otro integran
 
 ## Configuración requerida en QA y main
 
+La activación y verificación pueden realizarse con `node scripts/configure-e9-protection.cjs --apply`, desde una cuenta con administración y GitHub CLI autenticado. El modo `--dry-run` solo muestra la configuración; `--verify` consulta el estado. El procedimiento y la demostración pendiente están en [E9-ACTIVACION-Y-DEMOSTRACION.md](E9-ACTIVACION-Y-DEMOSTRACION.md). La verificación del 30 de octubre confirmó que la cuenta conectada solo tiene `write`; el registro está en `evidence/E9-VERIFICACION-PERMISOS.json`.
+
 El responsable con permiso para editar reglas configura ambas ramas desde Settings > Branches o un ruleset activo. El archivo `E9-PROTECCION-REQUERIDA.json` contiene el ajuste concreto que debe reflejar la configuración:
 
 - PR obligatorio y una aprobación de otro integrante.
