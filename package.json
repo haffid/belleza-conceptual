@@ -9,7 +9,10 @@
     "test": "node --test store.test.js",
     "admin:create": "node manage.js admin",
     "seed": "node manage.js seed",
-    "db:migrate:postgres": "node migrate-postgres.js"
+    "db:migrate:postgres": "node migrate-postgres.js",
+    "test:unit": "node scripts/run-unit-tests.cjs",
+    "test:unit:baseline": "node scripts/run-unit-tests.cjs --baseline",
+    "test:unit:check": "node scripts/check-unit-coverage.cjs"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
