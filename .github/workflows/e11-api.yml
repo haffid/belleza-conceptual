@@ -24,9 +24,6 @@ jobs:
             package-lock.json
             tools/api/package-lock.json
       - run: npm ci --ignore-scripts
-      - name: Instalar solo el binario nativo requerido por SQLite
-        run: node ../prebuild-install/bin.js
-        working-directory: node_modules/better-sqlite3
       - run: npm ci --prefix tools/api --ignore-scripts
       - name: Ejecutar colección sobre datos aislados
         run: npm run test:api
