@@ -197,7 +197,7 @@ async function createApp(options = {}) {
       return (await tx.query('UPDATE store_orders SET status=$1 WHERE id=$2 RETURNING *', [status, o.id])).rows[0];
     }); res.json(orderView(order));
   }, true));
-  app.get('/health', route(async (req, res) => { await db.query('SELECT 1'); res.json({ status: 'ok', db: db.postgres ? 'postgresql' : 'sqlite' }); }));
+  app.get('/health', route(async (req, res) => { await db.query('SELECT 1'); res.json({ status: 'ok', db: db.postgres ? 'postgresql' : 'sqlite', revision: process.env.RENDER_GIT_COMMIT || process.env.BUILD_COMMIT || null }); }));
   for (const [url, file] of [['/', 'index.html'], ['/cuenta', 'account.html'], ['/admin', 'admin.html'], ['/store-ui.js', 'store-ui.js'], ['/store.css', 'store.css']]) app.get(url, (req, res) => res.sendFile(path.join(__dirname, file)));
   app.use('/api', (req, res) => res.status(404).json({ error: 'Ruta no encontrada.' }));
   app.use((err, req, res, next) => {

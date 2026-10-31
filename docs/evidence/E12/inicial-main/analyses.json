@@ -1,0 +1,47 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 5,
+    "total": 2
+  },
+  "analyses": [
+    {
+      "key": "42c4950f-0b87-49cb-b541-27f4761b25f0",
+      "date": "2026-10-08T19:10:11-06:00",
+      "events": [
+        {
+          "key": "AaEeNj6WthfJMXOdZZ7i",
+          "category": "VERSION",
+          "name": "not provided"
+        },
+        {
+          "key": "AaEeNj6SthfJMXOdZZ7h",
+          "category": "QUALITY_PROFILE",
+          "name": "Changes in 'Sonar way comprehensive' (js)"
+        },
+        {
+          "key": "AaEeNj6SthfJMXOdZZ7g",
+          "category": "QUALITY_GATE",
+          "name": "Red",
+          "description": "Security Rating on New Code > 1"
+        },
+        {
+          "key": "AaEeNj6SthfJMXOdZZ7f",
+          "category": "QUALITY_PROFILE",
+          "name": "Use 'Sonar way comprehensive' (css)"
+        }
+      ],
+      "projectVersion": "not provided",
+      "manualNewCodePeriodBaseline": false,
+      "revision": "f3768a14fc7345ff0145b0705574308bf6f19110"
+    },
+    {
+      "key": "14cca8a3-cdb5-4834-b02f-2157da47ec3e",
+      "date": "2026-09-25T08:58:57-06:00",
+      "events": [],
+      "projectVersion": "not provided",
+      "manualNewCodePeriodBaseline": false,
+      "revision": "a4f39fa78eed784f81d210f301c20f060e392dfc"
+    }
+  ]
+}

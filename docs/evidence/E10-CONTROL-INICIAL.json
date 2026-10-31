@@ -1,0 +1,71 @@
+{
+  "measured_at": "2026-10-30T05:23:19.230Z",
+  "node": "v24.22.1",
+  "metric": "líneas no vacías del alcance crítico, con conteos de V8/LCOV",
+  "source_commit": "f3768a14fc7345ff0145b0705574308bf6f19110",
+  "source_sha256": {
+    "server.js": "58460c342c2e1b5a2ab55d019cca4bd00a5438094ecba90aed6a357463864d56",
+    "index.html": "5b5d0c7a7d6fb80c103225f81804a7bbf5287fb58e9bf0189799bb4dc8d519d6",
+    "db.js": "2f46d79ec3d06f3108c544ea25968bd528895c741faa27f94af330bbf3ed8665"
+  },
+  "modules": {
+    "catalogo": {
+      "covered": 35,
+      "total": 106,
+      "percent": 33.0189,
+      "ranges": [
+        [
+          "server.js",
+          95,
+          127
+        ],
+        [
+          "index.html",
+          358,
+          434
+        ]
+      ]
+    },
+    "pedidos_y_carrito": {
+      "covered": 20,
+      "total": 184,
+      "percent": 10.8696,
+      "ranges": [
+        [
+          "server.js",
+          144,
+          199
+        ],
+        [
+          "index.html",
+          435,
+          569
+        ]
+      ]
+    },
+    "persistencia_aplicacion": {
+      "covered": 0,
+      "total": 51,
+      "percent": 0,
+      "ranges": [
+        [
+          "db.js",
+          1,
+          52
+        ]
+      ]
+    }
+  },
+  "aggregate": {
+    "covered": 55,
+    "total": 341,
+    "percent": 16.129
+  },
+  "kind": "control de inicialización de esta intervención; no es línea base histórica de Fase 1",
+  "historical_baseline_confirmed": false,
+  "tests": {
+    "backend": 0,
+    "frontend": 0,
+    "names": []
+  }
+}

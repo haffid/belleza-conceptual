@@ -1,0 +1,972 @@
+{
+  "info": {
+    "name": "Belleza Conceptual E11 - flujo aislado de pedidos e inventario",
+    "description": "35 solicitudes HTTP con tres aserciones cada una. Datos sintéticos. Ejecutar mediante npm run test:api, que crea servidor y SQLite temporales. No son pruebas unitarias ni debe apuntarse a producción.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "orderCode",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "API-01 Salud y base aislada",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"status\",\"db\"],\"properties\":{\"status\":{\"type\":\"string\"},\"db\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.status).to.eql('ok'); pm.expect(data.db).to.eql('sqlite'); pm.expect(data).to.have.property('revision'); pm.expect(data.revision === null || /^[a-f0-9]{40}$/i.test(data.revision)).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-02 Catálogo inicialmente vacío",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/products"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id_producto\",\"nombre\",\"precio\",\"cantidad_disponible\",\"estado_activo\",\"imagenes\"],\"properties\":{\"id_producto\":{\"type\":\"integer\"},\"nombre\":{\"type\":\"string\"},\"precio\":{\"type\":\"number\"},\"cantidad_disponible\":{\"type\":\"integer\",\"minimum\":0},\"estado_activo\":{\"type\":\"boolean\"},\"imagenes\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data).to.have.lengthOf(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-03 Inventario requiere sesión",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/inventory"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', function () { pm.response.to.have.status(401); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"Inicia sesión\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-04 Registro fuerza rol cliente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"Cliente API sintético\",\"email\":\"{{clientEmail}}\",\"password\":\"{{clientPassword}}\",\"role\":\"admin\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"email\",\"role\",\"nombre\",\"telefono\",\"direccion\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"email\":{\"type\":\"string\"},\"role\":{\"enum\":[\"customer\",\"admin\"]},\"nombre\":{\"type\":\"string\"},\"telefono\":{\"type\":\"string\"},\"direccion\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.role).to.eql('customer'); pm.expect(data.email).to.eql(pm.environment.get('clientEmail')); pm.expect(data).not.to.have.property('password'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-05 Ingreso del cliente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{clientEmail}}\",\"password\":\"{{clientPassword}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"email\",\"role\",\"nombre\",\"telefono\",\"direccion\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"email\":{\"type\":\"string\"},\"role\":{\"enum\":[\"customer\",\"admin\"]},\"nombre\":{\"type\":\"string\"},\"telefono\":{\"type\":\"string\"},\"direccion\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.role).to.eql('customer'); pm.expect(data.email).to.eql(pm.environment.get('clientEmail')); pm.expect(data).not.to.have.property('password'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-06 Consultar perfil propio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"email\",\"role\",\"nombre\",\"telefono\",\"direccion\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"email\":{\"type\":\"string\"},\"role\":{\"enum\":[\"customer\",\"admin\"]},\"nombre\":{\"type\":\"string\"},\"telefono\":{\"type\":\"string\"},\"direccion\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.role).to.eql('customer'); pm.expect(data.email).to.eql(pm.environment.get('clientEmail')); pm.expect(data).not.to.have.property('password'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-07 Actualizar entrega del perfil",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/me",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"Cliente API sintético\",\"telefono\":\"00000000\",\"direccion\":\"Dirección ficticia actualizada\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"email\",\"role\",\"nombre\",\"telefono\",\"direccion\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"email\":{\"type\":\"string\"},\"role\":{\"enum\":[\"customer\",\"admin\"]},\"nombre\":{\"type\":\"string\"},\"telefono\":{\"type\":\"string\"},\"direccion\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.direccion).to.eql('Dirección ficticia actualizada'); pm.expect(data.telefono).to.eql('00000000'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-08 Cliente no administra inventario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/inventory"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"administradores\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-09 Cerrar sesión del cliente",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/logout"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"ok\"],\"properties\":{\"ok\":{\"const\":true}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.ok).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-10 Sesión cerrada no permite perfil",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/me"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', function () { pm.response.to.have.status(401); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"Inicia sesión\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-11 Ingreso administrativo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{adminEmail}}\",\"password\":\"{{adminPassword}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"email\",\"role\",\"nombre\",\"telefono\",\"direccion\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"email\":{\"type\":\"string\"},\"role\":{\"enum\":[\"customer\",\"admin\"]},\"nombre\":{\"type\":\"string\"},\"telefono\":{\"type\":\"string\"},\"direccion\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.role).to.eql('admin'); pm.expect(data).not.to.have.property('password'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-12 Crear producto con cinco unidades",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/admin/products",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"Crema API sintética\",\"categoria\":\"Facial\",\"descripcion\":\"Producto aislado de pruebas\",\"precio\":12.5,\"cantidad_disponible\":5,\"imagenes\":[]}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id_producto\",\"nombre\",\"precio\",\"cantidad_disponible\",\"estado_activo\",\"imagenes\"],\"properties\":{\"id_producto\":{\"type\":\"integer\"},\"nombre\":{\"type\":\"string\"},\"precio\":{\"type\":\"number\"},\"cantidad_disponible\":{\"type\":\"integer\",\"minimum\":0},\"estado_activo\":{\"type\":\"boolean\"},\"imagenes\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.cantidad_disponible).to.eql(5); pm.expect(data.precio).to.eql(12.5); pm.collectionVariables.set('productId',data.id_producto); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-13 Inventario inicial",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/inventory"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id_producto\",\"nombre\",\"precio\",\"cantidad_disponible\",\"estado_activo\",\"imagenes\"],\"properties\":{\"id_producto\":{\"type\":\"integer\"},\"nombre\":{\"type\":\"string\"},\"precio\":{\"type\":\"number\"},\"cantidad_disponible\":{\"type\":\"integer\",\"minimum\":0},\"estado_activo\":{\"type\":\"boolean\"},\"imagenes\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); const p=data.find(p=>p.id_producto===Number(pm.collectionVariables.get('productId'))); pm.expect(p).to.exist; pm.expect(p.cantidad_disponible).to.eql(5); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-14 Cerrar sesión administrativa",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/logout"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"ok\"],\"properties\":{\"ok\":{\"const\":true}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.ok).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-15 Ingresar cliente para compra",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{clientEmail}}\",\"password\":\"{{clientPassword}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"email\",\"role\",\"nombre\",\"telefono\",\"direccion\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"email\":{\"type\":\"string\"},\"role\":{\"enum\":[\"customer\",\"admin\"]},\"nombre\":{\"type\":\"string\"},\"telefono\":{\"type\":\"string\"},\"direccion\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.role).to.eql('customer'); pm.expect(data.email).to.eql(pm.environment.get('clientEmail')); pm.expect(data).not.to.have.property('password'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-16 Pedido vacío se rechaza",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"cliente\":{\"nombre\":\"Cliente API sintético\",\"telefono\":\"00000000\",\"direccion\":\"Dirección ficticia de pruebas\"},\"items\":[],\"metodo_pago_preferido\":\"Contra entrega\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', function () { pm.response.to.have.status(400); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"1 a 100\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-17 Comprar dos unidades",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"cliente\":{\"nombre\":\"Cliente API sintético\",\"telefono\":\"00000000\",\"direccion\":\"Dirección ficticia de pruebas\"},\"items\":[{\"id_producto\":{{productId}},\"cantidad\":2}],\"metodo_pago_preferido\":\"Contra entrega\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"codigo_pedido\",\"estado_actual\",\"total\",\"mensaje\",\"revision_requerida\"],\"properties\":{\"codigo_pedido\":{\"type\":\"string\",\"pattern\":\"^BC-\"},\"estado_actual\":{\"type\":\"string\"},\"total\":{\"type\":\"number\"},\"mensaje\":{\"type\":\"string\"},\"revision_requerida\":{\"type\":\"boolean\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.total).to.eql(25); pm.expect(data.estado_actual).to.eql('Recibido'); pm.expect(data.mensaje).to.include('Pago pendiente'); pm.collectionVariables.set('orderCode',data.codigo_pedido); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-18 Detalle del pedido propio",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/orders/{{orderCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"code\",\"status\",\"total\",\"cliente\",\"detalle\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"code\":{\"type\":\"string\"},\"status\":{\"type\":\"string\"},\"total\":{\"type\":\"number\"},\"cliente\":{\"type\":\"object\",\"required\":[\"nombre\",\"telefono\",\"direccion\",\"email\"]},\"detalle\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"required\":[\"quantity\",\"price_cents\",\"product_id\"],\"properties\":{\"quantity\":{\"type\":\"integer\"},\"price_cents\":{\"type\":\"integer\"},\"product_id\":{\"type\":\"integer\"}}}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.code).to.eql(pm.collectionVariables.get('orderCode')); pm.expect(data.detalle[0].quantity).to.eql(2); pm.expect(data.total).to.eql(25); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-19 Historial contiene el pedido",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/orders"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id\",\"code\",\"status\",\"total\",\"cliente\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"code\":{\"type\":\"string\"},\"status\":{\"type\":\"string\"},\"total\":{\"type\":\"number\"},\"cliente\":{\"type\":\"object\",\"required\":[\"nombre\",\"telefono\",\"direccion\",\"email\"]}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.some(o=>o.code===pm.collectionVariables.get('orderCode'))).to.eql(true); pm.expect(data).to.have.lengthOf(1); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-20 Falta de inventario se rechaza",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"cliente\":{\"nombre\":\"Cliente API sintético\",\"telefono\":\"00000000\",\"direccion\":\"Dirección ficticia de pruebas\"},\"items\":[{\"id_producto\":{{productId}},\"cantidad\":100}],\"metodo_pago_preferido\":\"Contra entrega\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', function () { pm.response.to.have.status(409); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"existencia\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-21 Cerrar cliente antes de probar privacidad",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/logout"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"ok\"],\"properties\":{\"ok\":{\"const\":true}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.ok).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-22 Registrar otro cliente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"Otro cliente sintético\",\"email\":\"otro-api@example.test\",\"password\":\"{{clientPassword}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"email\",\"role\",\"nombre\",\"telefono\",\"direccion\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"email\":{\"type\":\"string\"},\"role\":{\"enum\":[\"customer\",\"admin\"]},\"nombre\":{\"type\":\"string\"},\"telefono\":{\"type\":\"string\"},\"direccion\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.email).to.eql('otro-api@example.test'); pm.expect(data.role).to.eql('customer'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-23 Otro cliente no ve pedido ajeno",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/orders/{{orderCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"Pedido no encontrado\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-24 Cerrar otro cliente",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/logout"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"ok\"],\"properties\":{\"ok\":{\"const\":true}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.ok).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-25 Ingresar administrador para gestionar",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{adminEmail}}\",\"password\":\"{{adminPassword}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"email\",\"role\",\"nombre\",\"telefono\",\"direccion\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"email\":{\"type\":\"string\"},\"role\":{\"enum\":[\"customer\",\"admin\"]},\"nombre\":{\"type\":\"string\"},\"telefono\":{\"type\":\"string\"},\"direccion\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.role).to.eql('admin'); pm.expect(data).not.to.have.property('password'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-26 Inventario descontado sin venta parcial",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/inventory"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id_producto\",\"nombre\",\"precio\",\"cantidad_disponible\",\"estado_activo\",\"imagenes\"],\"properties\":{\"id_producto\":{\"type\":\"integer\"},\"nombre\":{\"type\":\"string\"},\"precio\":{\"type\":\"number\"},\"cantidad_disponible\":{\"type\":\"integer\",\"minimum\":0},\"estado_activo\":{\"type\":\"boolean\"},\"imagenes\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); const p=data.find(p=>p.id_producto===Number(pm.collectionVariables.get('productId'))); pm.expect(p).to.exist; pm.expect(p.cantidad_disponible).to.eql(3); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-27 Obtener ID del pedido para gestión",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/orders"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id\",\"code\",\"status\",\"total\",\"cliente\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"code\":{\"type\":\"string\"},\"status\":{\"type\":\"string\"},\"total\":{\"type\":\"number\"},\"cliente\":{\"type\":\"object\",\"required\":[\"nombre\",\"telefono\",\"direccion\",\"email\"]}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); const o=data.find(o=>o.code===pm.collectionVariables.get('orderCode')); pm.expect(o).to.exist; pm.expect(o.status).to.eql('Recibido'); pm.expect(data).to.have.lengthOf(1); pm.collectionVariables.set('orderId',o.id); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-28 Cancelar pedido recibido",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/admin/orders/{{orderId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"estado_actual\":\"Cancelado\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"id\",\"code\",\"status\"],\"properties\":{\"id\":{\"type\":\"integer\"},\"code\":{\"type\":\"string\"},\"status\":{\"type\":\"string\"}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.status).to.eql('Cancelado'); pm.expect(data.code).to.eql(pm.collectionVariables.get('orderCode')); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-29 Inventario devuelto al cancelar",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/inventory"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id_producto\",\"nombre\",\"precio\",\"cantidad_disponible\",\"estado_activo\",\"imagenes\"],\"properties\":{\"id_producto\":{\"type\":\"integer\"},\"nombre\":{\"type\":\"string\"},\"precio\":{\"type\":\"number\"},\"cantidad_disponible\":{\"type\":\"integer\",\"minimum\":0},\"estado_activo\":{\"type\":\"boolean\"},\"imagenes\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); const p=data.find(p=>p.id_producto===Number(pm.collectionVariables.get('productId'))); pm.expect(p).to.exist; pm.expect(p.cantidad_disponible).to.eql(5); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-30 Segunda cancelación se rechaza",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/admin/orders/{{orderId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"estado_actual\":\"Cancelado\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', function () { pm.response.to.have.status(409); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"Cambio de estado\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-31 Inventario no se devuelve dos veces",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/inventory"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id_producto\",\"nombre\",\"precio\",\"cantidad_disponible\",\"estado_activo\",\"imagenes\"],\"properties\":{\"id_producto\":{\"type\":\"integer\"},\"nombre\":{\"type\":\"string\"},\"precio\":{\"type\":\"number\"},\"cantidad_disponible\":{\"type\":\"integer\",\"minimum\":0},\"estado_activo\":{\"type\":\"boolean\"},\"imagenes\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); const p=data.find(p=>p.id_producto===Number(pm.collectionVariables.get('productId'))); pm.expect(p).to.exist; pm.expect(p.cantidad_disponible).to.eql(5); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-32 Movimientos conservan trazabilidad",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/movements"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"product_id\",\"delta\",\"reason\",\"administrador\"],\"properties\":{\"product_id\":{\"type\":\"integer\"},\"delta\":{\"type\":\"integer\"},\"reason\":{\"type\":\"string\"},\"administrador\":{\"type\":\"string\"}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); const moves=data.filter(m=>m.product_id===Number(pm.collectionVariables.get('productId'))); pm.expect(moves.map(m=>m.delta).sort((a,b)=>a-b)).to.deep.eql([-2,2,5]); pm.expect(moves.some(m=>m.reason==='Cancelación '+pm.collectionVariables.get('orderCode'))).to.eql(true); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-33 Ajuste no permite stock negativo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/admin/products/{{productId}}/stock",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"cantidad\":-6,\"motivo\":\"Ajuste inválido sintético\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', function () { pm.response.to.have.status(409); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"fuera de límites\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-34 Rechazo mantiene las existencias",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/inventory"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"id_producto\",\"nombre\",\"precio\",\"cantidad_disponible\",\"estado_activo\",\"imagenes\"],\"properties\":{\"id_producto\":{\"type\":\"integer\"},\"nombre\":{\"type\":\"string\"},\"precio\":{\"type\":\"number\"},\"cantidad_disponible\":{\"type\":\"integer\",\"minimum\":0},\"estado_activo\":{\"type\":\"boolean\"},\"imagenes\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); const p=data.find(p=>p.id_producto===Number(pm.collectionVariables.get('productId'))); pm.expect(p).to.exist; pm.expect(p.cantidad_disponible).to.eql(5); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API-35 Origen externo se rechaza",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "https://untrusted.example.test"
+          }
+        ],
+        "url": "{{baseUrl}}/api/me",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"nombre\":\"No debe guardarse\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', function () { pm.response.to.have.status(403); });",
+              "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"error\"],\"properties\":{\"error\":{\"type\":\"string\",\"minLength\":1}}}); });",
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.error).to.include(\"Origen no permitido\"); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
