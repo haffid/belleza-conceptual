@@ -20,8 +20,6 @@ function scopes() {
     if (offset < 0) throw new Error('Cambió el alcance; revisar el marcador: ' + marker);
     return source.slice(0, offset).split('\n').length;
   };
-  const scriptEnd = html.indexOf('</script>', html.indexOf('<script>'));
-  const close = html.lastIndexOf('})();', scriptEnd);
   return {
     catalogo: [
       ['server.js', line(server, "app.get('/api/products'"), line(server, 'fs.mkdirSync(uploadDir') - 1],

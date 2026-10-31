@@ -16,7 +16,8 @@ function api(endpoint, payload) {
   const command = ['api', '-H', 'Accept: application/vnd.github+json'];
   if (payload) command.push('--method', 'PUT', '--input', '-');
   command.push(endpoint);
-  const result = spawnSync('gh', command, {
+  const executable = process.platform === 'win32' ? 'C:\\Program Files\\GitHub CLI\\gh.exe' : '/usr/bin/gh';
+  const result = spawnSync(executable, command, {
     encoding: 'utf8',
     input: payload ? JSON.stringify(payload) : undefined,
     windowsHide: true,
@@ -34,7 +35,7 @@ function validate(protection, branch) {
   if (status?.strict !== true) problems.push('no exige rama actualizada');
   if (protection.enforce_admins?.enabled !== true) problems.push('no aplica a administradores');
   const reviews = protection.required_pull_request_reviews;
-  if (!(reviews?.required_approving_review_count >= 1)) problems.push('falta una aprobación');
+  if ((reviews?.required_approving_review_count ?? 0) < 1) problems.push('falta una aprobación');
   if (reviews?.dismiss_stale_reviews !== true) problems.push('no invalida aprobaciones antiguas');
   if (reviews?.require_last_push_approval !== true) problems.push('no exige aprobación del último aporte');
   if (protection.required_conversation_resolution?.enabled !== true) problems.push('no exige resolver conversaciones');
