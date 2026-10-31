@@ -29,6 +29,8 @@ jobs:
         with:
           node-version: '24'
           package-manager-cache: false
+      - name: Probar el control de promoción
+        run: node --test test/ci/check-promotion.test.cjs
       - name: Verificar el origen de las promociones
         run: node scripts/check-promotion.cjs
       - name: Ejecutar unitarias y generar cobertura
