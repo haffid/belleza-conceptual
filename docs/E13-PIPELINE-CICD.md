@@ -1,6 +1,6 @@
 # E13 Pipeline de integración y despliegue continuo
 
-El workflow `e13-cicd.yml` integra en un único job y en orden: compilación esbuild, pruebas unitarias, análisis SonarCloud con `sonar.qualitygate.wait=true`, API mediante Newman contra `dist` y despliegue. Si cualquier paso falla, los siguientes no se ejecutan; los reportes se conservan con `if: always()`.
+El workflow `e13-cicd.yml` ejecuta en orden: compilación esbuild, pruebas unitarias, análisis SonarCloud con `sonar.qualitygate.wait=true` y API mediante Newman contra `dist`. El job de despliegue depende del éxito del job de validación y solo se ejecuta tras un push a `main`. Si cualquier validación falla, no se despliega; los reportes se conservan con `if: always()`.
 
 La aplicación es JavaScript interpretado. La compilación transpila el backend a Node.js 22, transforma y minimiza JavaScript del navegador y CSS y produce nueve archivos de aplicación y un manifiesto de revisión en `dist/`. No se describe como compilación de TypeScript ni se confunde un simple chequeo de sintaxis con generar un artefacto.
 
@@ -12,12 +12,12 @@ Los workflows separados de E9/E10, E11 y E12 se sustituyen en esta rama por E13 
 
 | Rama | GitHub Environment | Despliegue |
 | --- | --- | --- |
-| DEV | dev | Hook y URL del servicio de desarrollo |
-| QA | qa | Hook y URL del servicio QA |
+| DEV | Ninguno | Solo validación; no despliega |
+| QA | Ninguno | Solo validación; no despliega |
 | main | production | Hook y URL del servicio de producción |
-| PR | dev para validación | No despliega |
+| PR | Ninguno | Solo validación; no despliega |
 
-Solo los push a las tres ramas publican. Una ejecución manual valida sin desplegar. Los servicios y variables deben existir; el workflow no crea servicios ni bases de datos y no reutiliza silenciosamente un ambiente cuando falta configuración.
+Solo los push a `main` publican al único servicio existente en Render. Una ejecución manual valida sin desplegar. No se requieren servicios ni ambientes `dev` o `qa`. El workflow no crea servicios ni bases de datos. `SONAR_TOKEN` debe estar disponible como secreto del repositorio; el hook y la URL de Render se configuran en el ambiente `production`.
 
 ## Configurar el servicio existente de Render
 
@@ -27,7 +27,7 @@ Solo los push a las tres ramas publican. Una ejecución manual valida sin desple
 4. Conservar la configuración real de base de datos y fotografías. La instancia observada usa SQLite y catálogo vacío; un disco efímero no garantiza persistencia tras redeploy. Para la tienda real utilizar PostgreSQL y almacenamiento persistente para fotografías, según la guía del proyecto.
 5. En GitHub, Settings > Environments, crear `production` para el servicio existente. En Environment secrets agregar `RENDER_DEPLOY_HOOK_URL` con el Deploy Hook de ese servicio. Nunca guardar el hook en el repositorio o el chat.
 6. En Environment variables agregar `APP_BASE_URL=https://belleza-conceptual.onrender.com`. `SONAR_TOKEN` permanece como secreto de repositorio y Automatic Analysis debe seguir desactivado.
-7. Configurar `dev` y `qa` con servicios propios si se desea desplegar esas ramas. No apuntar ambos a producción. No se han creado esos servicios como parte de esta configuración.
+7. No crear servicios ni ambientes adicionales: `DEV`, `QA` y los PR ejecutan validaciones sin desplegar. Promover los cambios por `DEV` → `QA` → `main` según el control de promoción existente.
 8. Tras un push autorizado, conservar el run completo y `reports/deploy/deployment.json`. El helper envía a Render el SHA validado mediante `ref` y solo aprueba cuando `/health` responde sano con exactamente esa revisión.
 
 Hasta configurar los secretos/servicios y conservar un despliegue real, la etapa de despliegue permanece pendiente. No sustituir esa evidencia por pruebas con mocks ni por el hecho de que una versión anterior ya exista en Render.

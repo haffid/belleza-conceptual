@@ -15,7 +15,6 @@ jobs:
     name: E13 / compilacion-pruebas-gate-api-despliegue
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'QA' && 'qa' || 'dev' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -54,12 +53,6 @@ jobs:
         env:
           APP_ARTIFACT: dist
         run: npm run test:api
-      - name: Desplegar y verificar el mismo commit
-        if: github.event_name == 'push'
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-          APP_BASE_URL: ${{ vars.APP_BASE_URL }}
-        run: node scripts/deploy-render.cjs
       - name: Conservar evidencia incluso ante fallo
         if: always()
         uses: actions/upload-artifact@v7
@@ -75,3 +68,34 @@ jobs:
           include-hidden-files: true
           retention-days: 30
           if-no-files-found: error
+  deploy:
+    name: Desplegar a Render production
+    needs: pipeline
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production
+    concurrency:
+      group: e13-render-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Desplegar y verificar el mismo commit
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+        run: node scripts/deploy-render.cjs
+      - name: Conservar evidencia de despliegue
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e13-deploy-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/deploy/
+          retention-days: 30
+          if-no-files-found: warn
