@@ -17,7 +17,8 @@ test('el snapshot guarda datos remotos sin interpolarlos en el log de CI', async
     process: { argv: ['node', 'snapshot'], env: {} }, URL, URLSearchParams, AbortSignal,
     fetch: fetchMock, console: { log: text => logs.push(text), error: text => logs.push(text) },
   };
-  await vm.runInNewContext(fs.readFileSync(path.resolve(__dirname, '../../scripts/sonar-snapshot.cjs'), 'utf8'), context);
+  const filename = path.resolve(__dirname, '../../scripts/sonar-snapshot.cjs');
+  await vm.runInNewContext(fs.readFileSync(filename, 'utf8'), context, { filename });
   assert.equal(fetchMock.mock.callCount(), 3);
   assert.equal(JSON.parse(writes.get('summary.json')).metrics.code_smells, malicious);
   assert.deepEqual(logs, ['Snapshot de SonarCloud guardado en los archivos JSON.']);
