@@ -9,3 +9,6 @@ uploads/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+.entrega-build/
+reports/
+entrega-fase-2/
