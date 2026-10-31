@@ -43,3 +43,9 @@ PR #6, revisión daa3075755a7071befa1424216391ef35cc7af05, run 41163026006: comp
 El run anterior 41162729087 falló correctamente en el gate y omitió API/despliegue. La corrección fijó la ruta del ejecutable de GitHub CLI, clasificó los archivos de pruebas y amplió las pruebas de las herramientas, sin reducir el umbral de 80 %. Se conservan ambos estados. El despliegue real continúa pendiente de configurar los ambientes y secretos indicados arriba.
 
 Referencias: https://esbuild.github.io/api/#transform ; https://render.com/docs/deploy-hooks ; https://render.com/docs/deploys .
+
+## Alcance compatible con el plan de SonarCloud
+
+Las promociones a DEV y QA se validan en sus Pull Requests; el workflow se ejecuta en todos los PR y en push a main. El plan actual permite consultar el quality gate de main y de los PR, pero rechazó la consulta de DEV como rama independiente en el run 41167691176. Se retiraron los triggers de push a DEV y QA para no ejecutar análisis de ramas que el plan no permite consultar. No se omite el scanner ni se desactiva la espera del gate en ninguna ejecución de promoción o despliegue.
+
+Una ejecución manual debe seleccionarse sobre main. Las protecciones QA/main exigen el check completo del PR antes del merge. El run fallido original se conserva como evidencia del límite observado y de la propagación del error.
