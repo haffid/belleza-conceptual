@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, edited]
   push:
-    branches: [DEV, QA, main, codex/e12-sonar]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read

@@ -46,13 +46,13 @@ El PR 4 contiene un estado inicial distinto: sobre código nuevo frente a DEV, h
 - Corrección: retener el primer error, capturar por separado fallos al cerrar servidor, cerrar base o retirar datos temporales y propagar el error fuera de finally. La validación de ruta queda en un helper que rechaza ubicaciones ajenas.
 - Evidencia: tres regresiones del helper y el flujo de API completo continúan aprobados. La comparación de Sonar debe confirmar ausencia de la regla en la versión corregida.
 
-El último reanálisis automático del PR 5 sobre el commit a5b9c69deae9fbb9e4473f5a63a1a9c78aa71e89 aprobó el quality gate Sonar way: cero bugs, vulnerabilidades, Blocker y Critical nuevos; un code smell y cinco minutos de deuda nueva. Esto no actualiza las métricas generales de main. El job de scanner por CI sigue fallido por coexistencia con Automatic Analysis; no se presenta como un job aprobado.
+El último reanálisis automático del PR 5 sobre el commit a5b9c69deae9fbb9e4473f5a63a1a9c78aa71e89 aprobó el quality gate Sonar way: cero bugs, vulnerabilidades, Blocker y Critical nuevos; un code smell y cinco minutos de deuda nueva. Esto no actualiza las métricas generales de main. Después de desactivar Automatic Analysis, la ejecución CI 41157859636, intento 2, terminó aprobada sobre ca469c4f6cd042f11494678551b4288c08992fc6. El gate evaluó 87.0 % de cobertura de código nuevo frente al 80 % requerido, con clasificaciones A y sin Blocker ni Critical nuevos. Se conservan LCOV y metadatos de scanner en el artefacto 13025528476.
 
 También se sustituyó la referencia interna a `tools/api/node_modules/newman` por resolución pública con `createRequire`, y las instalaciones de CI usan `--ignore-scripts`. better-sqlite3 13 incluye binarios, por lo que no necesita un instalador adicional para estas ejecuciones. Se corrigió un intento inicial de usar prebuild-install, inexistente en esa versión; no se presenta ese run fallido como aprobación.
 
 ## Integración con el pipeline
 
-El workflow `.github/workflows/e12-sonar.yml` ejecuta regresiones, genera LCOV, verifica la presencia de SONAR_TOKEN y ejecuta SonarScanner mediante una acción oficial fijada al SHA de v8.4.0. `sonar.qualitygate.wait=true` hace que el job espere el gate y falle si SonarCloud lo rechaza.
+El workflow `.github/workflows/e12-sonar.yml` se ejecuta en PR y en push a main. Ejecuta regresiones, genera LCOV, verifica la presencia de SONAR_TOKEN y ejecuta SonarScanner mediante una acción oficial fijada al SHA de v8.4.0. `sonar.qualitygate.wait=true` hace que el job espere el gate y falle si SonarCloud lo rechaza.
 
 El job se llama `E12 / sonar-quality-gate`. Exporta métricas y hallazgos del mismo alcance y conserva reportes con `if: always()`. No utiliza `continue-on-error`, no reduce umbrales y no omite el análisis cuando faltan credenciales.
 
@@ -89,6 +89,8 @@ La deuda y los conteos antes/después deben leerse de los JSON de Sonar, sin est
 | Cobertura insuficiente | Las regresiones de E12 son parciales; no se debe excluir código real para aprobar. | Integrar las unitarias de E10 y medir el conjunto con LCOV válido. |
 | Bugs y code smells restantes | El estado inicial tiene nueve bugs y 41 smells; no todos son Blocker/Critical. | Priorizar errores funcionales y accesibilidad; resolver por PR y comparar métricas sin rebajar el gate. |
 | Dependencias con avisos | npm audit y Sonar analizan aspectos distintos. | Mantener el registro de dependencias y planificar su actualización y pruebas; no confundir cero hallazgos Sonar con cero vulnerabilidades de paquetes. |
+
+La ejecución completa de una rama no principal recibió del servidor el error "Organization is not allowed to access data from non main branches" (run 41157855509). No se ocultó ese fallo ni se adquirió un plan de pago. Por esa limitación, se analiza cada PR y main; los tests de E9/E10/E11 conservan sus propios disparadores. Para obtener métricas generales posteriores, integrar la corrección mediante las revisiones y promociones acordadas y analizar main, o habilitar análisis de ramas mediante un plan que lo permita. No comparar métricas generales de main con métricas nuevas del PR como si fueran equivalentes.
 
 La aprobación se acredita únicamente con el gate real de Sonar y el job correspondiente, ligados al commit evaluado. Si permanece fallido, adjuntar condiciones fallidas, responsables del equipo y próximo criterio verificable de cierre; no declarar E12 totalmente cerrado.
 
