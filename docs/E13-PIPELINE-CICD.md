@@ -4,7 +4,7 @@ El workflow `e13-cicd.yml` integra en un único job y en orden: compilación esb
 
 La aplicación es JavaScript interpretado. La compilación transpila el backend a Node.js 22, transforma y minimiza JavaScript del navegador y CSS y produce nueve archivos de aplicación y un manifiesto de revisión en `dist/`. No se describe como compilación de TypeScript ni se confunde un simple chequeo de sintaxis con generar un artefacto.
 
-Las 39 unitarias originales y sus arneses provienen del PR #2, SHA 871b5d9. El control y sus nueve pruebas provienen del PR #3, SHA 340d4a4. Las siete regresiones de seguridad y la colección API proceden del PR #5, SHA 6a59a31. Se agregan seis pruebas de compilación/despliegue: 61 casos distintos en la ejecución conjunta. Las 39 se ejecutan también por el comando E10 para conservar su reporte compatible; no se cuentan dos veces.
+Las 39 unitarias originales y sus arneses provienen del PR #2, SHA 871b5d9. El control y sus nueve pruebas provienen del PR #3, SHA 340d4a4. Las siete regresiones de seguridad y la colección API proceden del PR #5, SHA 6a59a31. Se agregan 17 pruebas de compilación, despliegue y herramientas del pipeline: 72 casos distintos en la ejecución conjunta. Las 39 se ejecutan también por el comando E10 para conservar su reporte compatible; no se cuentan dos veces.
 
 Los workflows separados de E9/E10, E11 y E12 se sustituyen en esta rama por E13 para conservar un solo orden y evitar análisis de Sonar simultáneos con coberturas diferentes. Las pruebas y herramientas anteriores siguen disponibles. Tras integrar, el check que se debe exigir en QA/main es `E13 / compilacion-pruebas-gate-api-despliegue`.
 
@@ -35,5 +35,11 @@ Hasta configurar los secretos/servicios y conservar un despliegue real, la etapa
 ## Pruebas de los controles
 
 Los dobles del compilador comprueban el artefacto y la propagación del fallo. Los dobles HTTP comprueban hook válido, rechazo de fallos, timeout, reinicios y rechazo de health de un commit anterior. Estos casos no envían hooks ni despliegan servicios reales.
+
+## Resultado observado en GitHub
+
+PR #6, revisión daa3075755a7071befa1424216391ef35cc7af05, run 41163026006: compilación, 72 casos distintos, SonarCloud y Newman aprobados; despliegue omitido por tratarse de un PR. Newman ejecutó 35 solicitudes y 105 aserciones contra el artefacto compilado. SonarCloud reportó gate OK y 85.6 % de cobertura de código nuevo. No hubo Blocker, Critical ni vulnerabilidades abiertas en ese alcance; permanecen tres code smells y 15 minutos de deuda estimada.
+
+El run anterior 41162729087 falló correctamente en el gate y omitió API/despliegue. La corrección fijó la ruta del ejecutable de GitHub CLI, clasificó los archivos de pruebas y amplió las pruebas de las herramientas, sin reducir el umbral de 80 %. Se conservan ambos estados. El despliegue real continúa pendiente de configurar los ambientes y secretos indicados arriba.
 
 Referencias: https://esbuild.github.io/api/#transform ; https://render.com/docs/deploy-hooks ; https://render.com/docs/deploys .
