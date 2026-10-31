@@ -15,8 +15,9 @@ async function main() {
   process.env.NODE_ENV = 'test';
   process.env.UPLOAD_DIR = path.join(temporary, 'uploads');
   process.env.TRUST_PROXY = '0';
-  const { openDatabase } = require('../db');
-  const { createApp, hashPassword } = require('../server');
+  const artifact = process.env.APP_ARTIFACT === 'dist' ? path.join(root, 'dist') : root;
+  const { openDatabase } = require(path.join(artifact, 'db'));
+  const { createApp, hashPassword } = require(path.join(artifact, 'server'));
   const reportDir = path.join(root, 'reports', 'api');
   fs.mkdirSync(reportDir, { recursive: true });
   const db = await openDatabase({ filename: path.join(temporary, 'api.sqlite') });
@@ -52,6 +53,7 @@ async function main() {
       executed_at: new Date().toISOString(),
       tested_revision: process.env.GITHUB_SHA || 'working-tree-local',
       kind: 'Pruebas de API HTTP con Newman; no son unitarias',
+      artifact: process.env.APP_ARTIFACT === 'dist' ? 'dist compilado' : 'fuente',
       environment: 'Local aislado, SQLite, datos sintéticos y credenciales efímeras',
       requests: executions.length,
       assertions: summary.run.stats.assertions,

@@ -1,0 +1,116 @@
+{
+  "measured_at": "2026-10-30T05:28:55.747Z",
+  "node": "v24.22.1",
+  "metric": "líneas no vacías del alcance crítico, con conteos de V8/LCOV",
+  "source_commit": "f3768a14fc7345ff0145b0705574308bf6f19110",
+  "source_sha256": {
+    "server.js": "58460c342c2e1b5a2ab55d019cca4bd00a5438094ecba90aed6a357463864d56",
+    "index.html": "5b5d0c7a7d6fb80c103225f81804a7bbf5287fb58e9bf0189799bb4dc8d519d6",
+    "db.js": "2f46d79ec3d06f3108c544ea25968bd528895c741faa27f94af330bbf3ed8665"
+  },
+  "modules": {
+    "catalogo": {
+      "covered": 86,
+      "total": 106,
+      "percent": 81.1321,
+      "ranges": [
+        [
+          "server.js",
+          95,
+          127
+        ],
+        [
+          "index.html",
+          358,
+          434
+        ]
+      ]
+    },
+    "pedidos_y_carrito": {
+      "covered": 173,
+      "total": 184,
+      "percent": 94.0217,
+      "ranges": [
+        [
+          "server.js",
+          144,
+          199
+        ],
+        [
+          "index.html",
+          435,
+          569
+        ]
+      ]
+    },
+    "persistencia_aplicacion": {
+      "covered": 42,
+      "total": 51,
+      "percent": 82.3529,
+      "ranges": [
+        [
+          "db.js",
+          1,
+          52
+        ]
+      ]
+    }
+  },
+  "aggregate": {
+    "covered": 301,
+    "total": 341,
+    "percent": 88.2698
+  },
+  "kind": "suite unitaria aportada en E10",
+  "historical_baseline_confirmed": false,
+  "tested_revision": "working-tree-local",
+  "tests": {
+    "backend": 25,
+    "frontend": 14,
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "names": [
+      "UT-BE-01 subtotal usa precio del servidor por cantidad",
+      "UT-BE-02 total suma líneas de productos distintos",
+      "UT-BE-03 cantidad cero se rechaza antes de persistir",
+      "UT-BE-04 cantidad negativa se rechaza antes de persistir",
+      "UT-BE-05 cantidad no numérica se rechaza antes de persistir",
+      "UT-BE-06 pedido vacío se rechaza",
+      "UT-BE-07 stock insuficiente simulado impide guardar el pedido",
+      "UT-BE-08 cantidad igual al stock es aceptada",
+      "UT-BE-09 producto agotado no genera un pedido",
+      "UT-BE-10 líneas repetidas se consolidan antes de reservar",
+      "UT-BE-11 un precio enviado por el cliente no altera el importe",
+      "UT-BE-12 producto inexistente no permite persistir el pedido",
+      "UT-BE-13 producto inactivo no se confirma",
+      "UT-BE-14 fallo del repositorio se propaga sin confirmar ni guardar",
+      "UT-BE-15 catálogo transforma centavos e imágenes del repositorio",
+      "UT-BE-16 catálogo vacío devuelve una colección válida",
+      "UT-BE-17 precio negativo se rechaza sin insertar un producto",
+      "UT-BE-18 precio con tres decimales se rechaza",
+      "UT-BE-19 producto válido conserva importe y registra inventario inicial",
+      "UT-BE-20 una segunda cancelación no devuelve inventario otra vez",
+      "UT-BE-21 adaptador reenvía consulta parametrizada al pool simulado",
+      "UT-BE-22 transacción confirma y libera el cliente",
+      "UT-BE-23 fallo del trabajo revierte y libera el cliente",
+      "UT-BE-24 fallo al confirmar intenta rollback y libera el cliente",
+      "UT-BE-25 cierre del adaptador cierra el pool una vez",
+      "UT-FE-01 agregar producto crea una línea y persiste el carrito",
+      "UT-FE-02 agregar el mismo producto consolida la cantidad",
+      "UT-FE-03 agregar dos unidades actualiza cantidad y subtotal",
+      "UT-FE-04 quitar una línea conserva la otra y recalcula total",
+      "UT-FE-05 quitar la última línea vacía el carrito y su total",
+      "UT-FE-06 total acumula precio por cantidad de todas las líneas",
+      "UT-FE-07 agregar de nuevo no excede el stock comunicado",
+      "UT-FE-08 producto agotado no ofrece una acción de agregar",
+      "UT-FE-09 dirección obligatoria faltante impide enviar el pedido",
+      "UT-FE-10 fallo simulado del catálogo muestra el error",
+      "UT-FE-11 filtro de categoría conserva solo los productos elegidos",
+      "UT-FE-12 categoría sin productos muestra estado vacío",
+      "UT-FE-13 error al confirmar conserva carrito y reactiva el botón",
+      "UT-FE-14 confirmación exitosa vacía carrito y muestra código y total"
+    ]
+  }
+}

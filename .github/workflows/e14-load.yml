@@ -1,0 +1,42 @@
+name: E14 Carga cloud
+on:
+  workflow_dispatch:
+    inputs:
+      authorized:
+        description: Autoriza crear una cuenta ficticia y ejecutar 50 VU durante 5 minutos en la URL cloud configurada
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: e14-cloud-load
+  cancel-in-progress: false
+jobs:
+  load:
+    if: inputs.authorized == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment: load-test
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Crear directorio de resultados
+        run: mkdir -p reports/load
+      - name: Ejecutar k6 sobre cloud
+        env:
+          LOAD_BASE_URL: ${{ vars.APP_BASE_URL }}
+          LOAD_AUTHORIZED: 'yes'
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" -w /work \
+            -e LOAD_BASE_URL -e LOAD_AUTHORIZED \
+            grafana/k6:2.3.0 run --no-color test/load/e14.js
+      - name: Conservar metricas y perfil
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e14-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/load/
+          retention-days: 30
+          if-no-files-found: error

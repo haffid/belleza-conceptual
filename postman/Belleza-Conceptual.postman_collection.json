@@ -34,7 +34,7 @@
             "exec": [
               "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
               "pm.test('Esquema de respuesta', function () { pm.response.to.have.jsonSchema({\"type\":\"object\",\"required\":[\"status\",\"db\"],\"properties\":{\"status\":{\"type\":\"string\"},\"db\":{\"type\":\"string\"}}}); });",
-              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data).to.deep.eql({status:'ok',db:'sqlite'}); });"
+              "pm.test('Contenido esperado', function () { const data = pm.response.json(); pm.expect(data.status).to.eql('ok'); pm.expect(data.db).to.eql('sqlite'); pm.expect(data).to.have.property('revision'); pm.expect(data.revision === null || /^[a-f0-9]{40}$/i.test(data.revision)).to.eql(true); });"
             ]
           }
         }
