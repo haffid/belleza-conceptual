@@ -9,7 +9,13 @@
     "test": "node --test store.test.js",
     "admin:create": "node manage.js admin",
     "seed": "node manage.js seed",
-    "db:migrate:postgres": "node migrate-postgres.js"
+    "db:migrate:postgres": "node migrate-postgres.js",
+    "test:api": "node scripts/run-api-tests.cjs",
+    "build": "node scripts/build.cjs",
+    "start:production": "node dist/server.js",
+    "test:unit": "node scripts/run-unit-tests.cjs",
+    "test:unit:check": "node scripts/check-unit-coverage.cjs",
+    "test:ci": "node --test --experimental-test-coverage --test-coverage-include=server.js --test-coverage-include=db.js --test-coverage-include=index.html --test-coverage-include=store-ui.js --test-coverage-include=scripts/*.cjs --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=reports/ci/lcov.info --test-reporter=tap --test-reporter-destination=reports/ci/execution.tap test/unit/*.test.cjs test/security/*.test.cjs test/ci/*.test.cjs test/pipeline/*.test.cjs"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
@@ -23,5 +29,8 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   }
 }

@@ -1,0 +1,23 @@
+{
+  "observed_at_utc": "2026-10-31T01:49:23.039Z",
+  "project": "haffid_belleza-conceptual",
+  "scope": "pull_request",
+  "selector": {
+    "pullRequest": "4"
+  },
+  "workflow_revision": null,
+  "note": "Un snapshot público de rama o PR no equivale a métricas de main. No interpretar métricas ausentes como cero.",
+  "metrics": {
+    "new_critical_violations": "1",
+    "new_vulnerabilities": "2",
+    "new_technical_debt": "5",
+    "new_blocker_violations": "0",
+    "new_duplicated_lines_density": "0.0",
+    "new_bugs": "1",
+    "new_code_smells": "1"
+  },
+  "quality_gate": "ERROR",
+  "open_issues": 4,
+  "blocker": 0,
+  "critical": 1
+}

@@ -62,10 +62,24 @@
       message('', false, 'stock-message'); $('stock-dialog').showModal();
     }));
   }
+  function renderStats(products, orders) {
+    const cards = [[products.length, 'Productos'], [products.reduce((sum, p) => sum + p.cantidad_disponible, 0), 'Unidades'], [products.filter(p => p.cantidad_disponible === 0).length, 'Agotados'], [orders.filter(o => ['Recibido', 'Preparando'].includes(o.status)).length, 'Pedidos pendientes']];
+    $('stats').replaceChildren(...cards.map(([value, label]) => {
+      const card = document.createElement('div');
+      card.className = 'panel';
+      const title = document.createElement('span');
+      title.className = 'muted';
+      title.textContent = label;
+      const count = document.createElement('strong');
+      count.textContent = String(value);
+      card.append(title, count);
+      return card;
+    }));
+  }
   async function refresh() {
     const [products, movements, orders] = await Promise.all([api('/admin/inventory'), api('/admin/movements'), api('/admin/orders')]);
     inventory = products; renderInventory();
-    $('stats').innerHTML = [[products.length,'Productos'],[products.reduce((s,p)=>s+p.cantidad_disponible,0),'Unidades'],[products.filter(p=>p.cantidad_disponible===0).length,'Agotados'],[orders.filter(o=>['Recibido','Preparando'].includes(o.status)).length,'Pedidos pendientes']].map(([n,t])=>`<div class="panel"><span class="muted">${t}</span><strong>${n}</strong></div>`).join('');
+    renderStats(products, orders);
     $('movements').innerHTML = movements.map(m => `<tr><td>${esc(date(m.created_at))}</td><td>${esc(m.nombre)}</td><td>${m.delta > 0 ? '+' : ''}${m.delta}</td><td>${esc(m.reason)}</td><td>${esc(m.administrador)}</td></tr>`).join('') || '<tr><td colspan="5">Sin movimientos.</td></tr>';
     const transitions = { Recibido: ['Preparando', 'Cancelado'], Preparando: ['Enviado', 'Cancelado'], Enviado: ['Entregado'], Entregado: [], Cancelado: [] };
     $('orders').innerHTML = orders.map(o => `<tr><td>${esc(o.code)}<small>${esc(o.cliente.nombre)} · ${esc(date(o.created_at))}</small></td><td>${money(o.total)}<small>${esc(o.payment)}</small></td><td><span class="badge">${esc(o.status)}</span></td><td><button data-detail="${esc(o.code)}">Detalle</button> ${(transitions[o.status] || []).map(s=>`<button class="secondary" data-order="${o.id}" data-status="${s}">${s === 'Cancelado' ? 'Cancelar' : s}</button>`).join(' ')}</td></tr>`).join('') || '<tr><td colspan="4">Sin pedidos.</td></tr>';

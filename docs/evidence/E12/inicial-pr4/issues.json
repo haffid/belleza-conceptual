@@ -1,0 +1,176 @@
+{
+  "total": 4,
+  "issues": [
+    {
+      "key": "AaGPkpplWL1uZnMkUpI3",
+      "rule": "githubactions:S6505",
+      "severity": "MAJOR",
+      "component": "haffid_belleza-conceptual:.github/workflows/e11-api.yml",
+      "project": "haffid_belleza-conceptual",
+      "line": 26,
+      "hash": "3bb70db01b3e23cab823a7fe45401ed8",
+      "textRange": {
+        "startLine": 26,
+        "endLine": 26,
+        "startOffset": 13,
+        "endOffset": 19
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation.",
+      "effort": "30min",
+      "debt": "30min",
+      "assignee": "haffid-ZR7J3@github",
+      "tags": [
+        "cwe",
+        "former-hotspot"
+      ],
+      "creationDate": "2026-10-31T01:27:33+0000",
+      "updateDate": "2026-10-31T01:28:00+0000",
+      "type": "VULNERABILITY",
+      "organization": "haffid",
+      "pullRequest": "4",
+      "cleanCodeAttribute": "TRUSTWORTHY",
+      "cleanCodeAttributeCategory": "RESPONSIBLE",
+      "impacts": [
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "projectName": "belleza-conceptual",
+      "internalTags": [],
+      "lastChangeAnalysisUuid": "c7533527-0284-4897-84a8-fa4d1093351a",
+      "lastChangeSource": "ANALYSIS"
+    },
+    {
+      "key": "AaGPkpplWL1uZnMkUpI4",
+      "rule": "githubactions:S6505",
+      "severity": "MAJOR",
+      "component": "haffid_belleza-conceptual:.github/workflows/e11-api.yml",
+      "project": "haffid_belleza-conceptual",
+      "line": 27,
+      "hash": "07a9d0fce0601c0907a4f2442be4aabb",
+      "textRange": {
+        "startLine": 27,
+        "endLine": 27,
+        "startOffset": 13,
+        "endOffset": 19
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Omitting \"--ignore-scripts\" allows lifecycle scripts to run during package installation.",
+      "effort": "30min",
+      "debt": "30min",
+      "assignee": "haffid-ZR7J3@github",
+      "tags": [
+        "cwe",
+        "former-hotspot"
+      ],
+      "creationDate": "2026-10-31T01:27:33+0000",
+      "updateDate": "2026-10-31T01:28:00+0000",
+      "type": "VULNERABILITY",
+      "organization": "haffid",
+      "pullRequest": "4",
+      "cleanCodeAttribute": "TRUSTWORTHY",
+      "cleanCodeAttributeCategory": "RESPONSIBLE",
+      "impacts": [
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "projectName": "belleza-conceptual",
+      "internalTags": [],
+      "lastChangeAnalysisUuid": "c7533527-0284-4897-84a8-fa4d1093351a",
+      "lastChangeSource": "ANALYSIS"
+    },
+    {
+      "key": "AaGPkprWWL1uZnMkUpI5",
+      "rule": "javascript:S6627",
+      "severity": "MAJOR",
+      "component": "haffid_belleza-conceptual:scripts/run-api-tests.cjs",
+      "project": "haffid_belleza-conceptual",
+      "line": 6,
+      "hash": "59b6811577ddf1590a8fe069732487f7",
+      "textRange": {
+        "startLine": 6,
+        "endLine": 6,
+        "startOffset": 15,
+        "endOffset": 58
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Do not use internal APIs of your dependencies",
+      "effort": "5min",
+      "debt": "5min",
+      "assignee": "haffid-ZR7J3@github",
+      "tags": [
+        "gradle"
+      ],
+      "creationDate": "2026-10-31T01:27:33+0000",
+      "updateDate": "2026-10-31T01:28:00+0000",
+      "type": "CODE_SMELL",
+      "organization": "haffid",
+      "pullRequest": "4",
+      "cleanCodeAttribute": "MODULAR",
+      "cleanCodeAttributeCategory": "ADAPTABLE",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "projectName": "belleza-conceptual",
+      "internalTags": [],
+      "lastChangeAnalysisUuid": "c7533527-0284-4897-84a8-fa4d1093351a",
+      "lastChangeSource": "ANALYSIS"
+    },
+    {
+      "key": "AaGPkprWWL1uZnMkUpI6",
+      "rule": "javascript:S1143",
+      "severity": "CRITICAL",
+      "component": "haffid_belleza-conceptual:scripts/run-api-tests.cjs",
+      "project": "haffid_belleza-conceptual",
+      "line": 67,
+      "hash": "c51751da2a9b8f60585dfd89277839bb",
+      "textRange": {
+        "startLine": 67,
+        "endLine": 67,
+        "startOffset": 117,
+        "endOffset": 193
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Unsafe usage of ThrowStatement.",
+      "effort": "30min",
+      "debt": "30min",
+      "assignee": "haffid-ZR7J3@github",
+      "tags": [
+        "cwe",
+        "error-handling"
+      ],
+      "creationDate": "2026-10-31T01:27:33+0000",
+      "updateDate": "2026-10-31T01:28:00+0000",
+      "type": "BUG",
+      "organization": "haffid",
+      "pullRequest": "4",
+      "cleanCodeAttribute": "LOGICAL",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "RELIABILITY",
+          "severity": "HIGH"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "projectName": "belleza-conceptual",
+      "internalTags": [],
+      "lastChangeAnalysisUuid": "c7533527-0284-4897-84a8-fa4d1093351a",
+      "lastChangeSource": "ANALYSIS"
+    }
+  ]
+}
