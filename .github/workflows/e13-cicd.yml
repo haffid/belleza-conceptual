@@ -1,0 +1,101 @@
+name: E13 CI CD
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: e13-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+jobs:
+  pipeline:
+    name: E13 / compilacion-pruebas-gate-api-despliegue
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Instalar versiones del lockfile
+        run: |
+          npm ci --ignore-scripts
+          npm ci --prefix tools/api --ignore-scripts
+      - name: Compilacion
+        run: npm run build
+      - name: Pruebas unitarias y cobertura
+        run: |
+          npm run test:unit
+          npm run test:unit:check
+          npm run test:ci
+      - name: Verificar promocion
+        run: node scripts/check-promotion.cjs
+      - name: Verificar configuracion de SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo '::error::Falta SONAR_TOKEN. El pipeline no omite el quality gate.'
+            exit 1
+          fi
+      - name: Analisis estatico y quality gate
+        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: API contra el artefacto compilado
+        env:
+          APP_ARTIFACT: dist
+        run: npm run test:api
+      - name: Conservar evidencia incluso ante fallo
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e13-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/
+            reports/unit/
+            reports/ci/
+            reports/api/
+            reports/deploy/
+            .scannerwork/report-task.txt
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: error
+  deploy:
+    name: Desplegar a Render production
+    needs: pipeline
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: production
+    concurrency:
+      group: e13-render-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Desplegar y verificar el mismo commit
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+        run: node scripts/deploy-render.cjs
+      - name: Conservar evidencia de despliegue
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e13-deploy-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/deploy/
+          retention-days: 30
+          if-no-files-found: warn
