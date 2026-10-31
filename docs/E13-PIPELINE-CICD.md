@@ -22,7 +22,7 @@ Solo los push a `main` publican al único servicio existente en Render. Una ejec
 ## Configurar el servicio existente de Render
 
 1. Integrar por el recorrido de ramas acordado después de revisión. No saltar un check fallido.
-2. En Render, abrir el Web Service existente de la tienda, Settings. Configurar Build Command: `npm ci --ignore-scripts && npm run build`. Start Command: `npm run start:production`. Runtime Node.js 24 o superior compatible. Health Check Path: `/health`.
+2. En Render, abrir el Web Service existente de la tienda, Settings. Configurar Build Command: `npm ci --include=dev --ignore-scripts && npm run build`. Start Command: `npm run start:production`. Runtime Node.js 24 o superior compatible. Health Check Path: `/health`.
 3. Desactivar Auto-Deploy (`Off`) para que un push no despliegue antes de terminar E13. El workflow será quien active el despliegue después de API. Esto no desactiva análisis ni protecciones de seguridad.
 4. Conservar la configuración real de base de datos y fotografías. La instancia observada usa SQLite y catálogo vacío; un disco efímero no garantiza persistencia tras redeploy. Para la tienda real utilizar PostgreSQL y almacenamiento persistente para fotografías, según la guía del proyecto.
 5. En GitHub, Settings > Environments, crear `production` para el servicio existente. En Environment secrets agregar `RENDER_DEPLOY_HOOK_URL` con el Deploy Hook de ese servicio. Nunca guardar el hook en el repositorio o el chat.
@@ -43,3 +43,17 @@ PR #6, revisión daa3075755a7071befa1424216391ef35cc7af05, run 41163026006: comp
 El run anterior 41162729087 falló correctamente en el gate y omitió API/despliegue. La corrección fijó la ruta del ejecutable de GitHub CLI, clasificó los archivos de pruebas y amplió las pruebas de las herramientas, sin reducir el umbral de 80 %. Se conservan ambos estados. El despliegue real continúa pendiente de configurar los ambientes y secretos indicados arriba.
 
 Referencias: https://esbuild.github.io/api/#transform ; https://render.com/docs/deploy-hooks ; https://render.com/docs/deploys .
+
+## Alcance compatible con el plan de SonarCloud
+
+Las promociones a DEV y QA se validan en sus Pull Requests; el workflow se ejecuta en todos los PR y en push a main. El plan actual permite consultar el quality gate de main y de los PR, pero rechazó la consulta de DEV como rama independiente en el run 41167691176. Se retiraron los triggers de push a DEV y QA para no ejecutar análisis de ramas que el plan no permite consultar. No se omite el scanner ni se desactiva la espera del gate en ninguna ejecución de promoción o despliegue.
+
+Una ejecución manual debe seleccionarse sobre main. Las protecciones QA/main exigen el check completo del PR antes del merge. El run fallido original se conserva como evidencia del límite observado y de la propagación del error.
+
+## Preparación de Render al cierre de esta actualización
+
+El PR #6 se integró en DEV, pero QA y main aún no recibieron la promoción. El PR #8 corrige el alcance de Sonar y tiene pipeline aprobado tras reintentar una descarga del scanner que devolvió HTTP 403; necesita revisión humana. El PR #7 promueve DEV a QA y debe revisarse de nuevo tras incorporar la corrección.
+
+Se verificaron NODE_VERSION=24 y NODE_ENV=production. Se corrigió el Build Command para incluir las dependencias de desarrollo que necesita esbuild. La base nueva belleza-conceptual-fase2-db está disponible en Oregon, con acceso público bloqueado y vencimiento el 29 de noviembre de 2026. El usuario guardó DATABASE_URL. Con autorización del usuario, DB_SSL=false para esta demostración con datos ficticios: el tramo web-base usa la red privada sin TLS y el sitio público mantiene HTTPS. Es una limitación explícita; no afirmar cifrado TLS de ese tramo. Antes de usar datos reales, resolver TLS con una cadena de confianza verificable o un proveedor/conexión que la soporte, sin desactivar validación de certificados globalmente.
+
+La configuración se guardó sin ejecutar un despliegue manual. Falta un push aprobado a main que confirme PostgreSQL y la revisión en /health. Las protecciones QA/main están activas; no se omitirán para suplir la ausencia del revisor.
