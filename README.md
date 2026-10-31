@@ -1,4 +1,4 @@
-# Belleza Conceptual
+# Belleza Conceptual test
 
 Tienda en Node.js/Express con SQLite local y PostgreSQL para el servidor. Conserva el diseño del catálogo original. No requiere Python.
 
