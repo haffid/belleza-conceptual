@@ -1,0 +1,60 @@
+name: E12 SonarCloud
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  push:
+    branches: [DEV, QA, main, codex/e12-sonar]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sonar:
+    name: E12 / sonar-quality-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regresiones de seguridad y LCOV
+        run: |
+          mkdir -p reports/security
+          node --test --experimental-test-coverage --test-coverage-include=store-ui.js --test-coverage-include=scripts/api-cleanup.cjs --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=reports/security/lcov.info test/security/*.test.cjs
+      - name: Verificar configuración privada
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo '::error::Configura SONAR_TOKEN como secreto del repositorio. No se omite el quality gate.'
+            exit 1
+          fi
+      - name: Analizar y esperar el quality gate
+        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Exportar métricas y hallazgos del alcance analizado
+        if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -n "$PR_NUMBER" ]; then
+            node scripts/sonar-snapshot.cjs --output reports/sonar --pull-request "$PR_NUMBER"
+          else
+            node scripts/sonar-snapshot.cjs --output reports/sonar --branch "$GITHUB_REF_NAME"
+          fi
+      - name: Conservar cobertura y metadatos del scanner
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e12-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            reports/security/
+            reports/sonar/
+            .scannerwork/report-task.txt
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

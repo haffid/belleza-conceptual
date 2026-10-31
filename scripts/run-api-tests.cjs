@@ -3,7 +3,9 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const newman = require('../tools/api/node_modules/newman');
+const { createRequire } = require('node:module');
+const { removeOwnedDirectory } = require('./api-cleanup.cjs');
+const newman = createRequire(path.resolve(__dirname, '../tools/api/package.json'))('newman');
 
 async function main() {
   const root = path.resolve(__dirname, '..');
@@ -18,7 +20,7 @@ async function main() {
   const reportDir = path.join(root, 'reports', 'api');
   fs.mkdirSync(reportDir, { recursive: true });
   const db = await openDatabase({ filename: path.join(temporary, 'api.sqlite') });
-  let server;
+  let server, failure;
   try {
     const adminPassword = crypto.randomBytes(18).toString('hex');
     const clientPassword = crypto.randomBytes(18).toString('hex');
@@ -60,12 +62,17 @@ async function main() {
     const everyRequestChecked = executions.every(e => e.assertions.length >= 3 && e.assertions.every(a => a.passed));
     if (summary.run.failures.length || executions.length < 15 || !everyRequestChecked) throw new Error('E11 falló: se requieren al menos 15 solicitudes y todas sus aserciones aprobadas.');
     console.log(`E11: ${executions.length} solicitudes y ${summary.run.stats.assertions.total} aserciones aprobadas.`);
+  } catch (error) {
+    failure = error;
   } finally {
-    if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
-    await db.close();
-    const resolved = path.resolve(temporary);
-    if (path.dirname(resolved) !== path.resolve(os.tmpdir()) || !path.basename(resolved).startsWith('belleza-api-')) throw new Error('Ruta temporal fuera del alcance esperado; no se elimina.');
-    fs.rmSync(resolved, { recursive: true, force: true });
+    // Un fallo de limpieza no debe ocultar el error original de Newman.
+    if (server) {
+      try { server.closeAllConnections(); await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve())); }
+      catch (error) { failure ??= error; }
+    }
+    try { await db.close(); } catch (error) { failure ??= error; }
+    try { removeOwnedDirectory(temporary); } catch (error) { failure ??= error; }
   }
+  if (failure) throw failure;
 }
 main().catch(error => { console.error(error.message); process.exitCode = 1; });
