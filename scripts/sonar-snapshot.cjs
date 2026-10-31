@@ -10,7 +10,9 @@ async function main() {
   const branch = argument('--branch');
   if (pr && !/^\d+$/.test(pr)) throw new Error('Número de PR inválido.');
   if (pr && branch) throw new Error('Selecciona rama o PR, sin mezclar alcances.');
-  const scope = pr ? { pullRequest: pr } : branch ? { branch } : {};
+  let scope = {}, scopeName = 'main';
+  if (pr) { scope = { pullRequest: pr }; scopeName = 'pull_request'; }
+  else if (branch) { scope = { branch }; scopeName = 'branch'; }
   const request = async (endpoint, params) => {
     const url = new URL('/api/' + endpoint, 'https://sonarcloud.io');
     url.search = new URLSearchParams(params).toString();
@@ -33,7 +35,7 @@ async function main() {
   const metrics = Object.fromEntries(measures.component.measures.map(m => [m.metric, m.value ?? m.periods?.[0]?.value ?? null]));
   const summary = {
     observed_at_utc: new Date().toISOString(), project,
-    scope: pr ? 'pull_request' : branch ? 'branch' : 'main', selector: scope,
+    scope: scopeName, selector: scope,
     workflow_revision: process.env.GITHUB_SHA || null,
     note: 'Un snapshot público de rama o PR no equivale a métricas de main. No interpretar métricas ausentes como cero.',
     metrics, quality_gate: gate.projectStatus.status,
@@ -41,7 +43,8 @@ async function main() {
     blocker: issues.filter(i => i.severity === 'BLOCKER').length,
     critical: issues.filter(i => i.severity === 'CRITICAL').length,
   };
-  for (const [name, value] of Object.entries({ measures, gate, issues: { total, issues }, summary })) await fs.writeFile(path.join(output, name + '.json'), JSON.stringify(value, null, 2) + '\n');
-  console.log(JSON.stringify(summary, null, 2));
+  await Promise.all(Object.entries({ measures, gate, issues: { total, issues }, summary }).map(([name, value]) => fs.writeFile(path.join(output, name + '.json'), JSON.stringify(value, null, 2) + '\n')));
+  // Los datos remotos quedan en JSON; no se interpolan en los logs del runner.
+  console.log('Snapshot de SonarCloud guardado en los archivos JSON.');
 }
 main().catch(error => { console.error(error.message); process.exitCode = 1; });
