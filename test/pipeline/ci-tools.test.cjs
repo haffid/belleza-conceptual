@@ -19,7 +19,7 @@ function runScript(name, dependencies, args = [], proc = {}) {
   return { context, logs, errors };
 }
 const validProtection = {
-  required_status_checks: { strict: true, contexts: ['E9-E10 / pruebas-unitarias'] },
+  required_status_checks: { strict: true, contexts: ['E13 / compilacion-pruebas-gate-api-despliegue'] },
   enforce_admins: { enabled: true }, required_pull_request_reviews: {
     required_approving_review_count: 1, dismiss_stale_reviews: true, require_last_push_approval: true,
   }, required_conversation_resolution: { enabled: true },
@@ -32,7 +32,10 @@ function protectionHarness(mode, { admin = true, protectedBranch = false, protec
     const endpoint = args.at(-1); calls.push({ endpoint, put: args.includes('PUT') });
     if (transportError) return { error: new Error('CLI no disponible') };
     const value = endpoint.endsWith('/protection') ? protection : endpoint.includes('/branches/') ? { protected: protectedBranch } : { permissions: { admin } };
-    if (args.includes('PUT')) assert.equal(JSON.parse(options.input).required_status_checks.strict, true);
+    if (args.includes('PUT')) {
+      assert.equal(JSON.parse(options.input).required_status_checks.strict, true);
+      assert.deepEqual(JSON.parse(options.input).required_status_checks.contexts, ['E13 / compilacion-pruebas-gate-api-despliegue']);
+    }
     return { status: 0, stdout: JSON.stringify(value) };
   });
   const result = runScript('configure-e9-protection.cjs', {
