@@ -1,0 +1,29 @@
+{
+  "verified_at_utc": "2026-10-30T08:13:38.354Z",
+  "repository": "haffid/belleza-conceptual",
+  "actor": "AnEstuardoBarriosg",
+  "role_previously_verified": "write",
+  "activation_performed": false,
+  "merge_block_demonstrated": false,
+  "permissions": {
+    "admin": false,
+    "maintain": false,
+    "pull": true,
+    "push": true,
+    "triage": true
+  },
+  "branches": [
+    {
+      "name": "QA",
+      "protected": false,
+      "head_sha": "f3768a14fc7345ff0145b0705574308bf6f19110"
+    },
+    {
+      "name": "main",
+      "protected": false,
+      "head_sha": "f3768a14fc7345ff0145b0705574308bf6f19110"
+    }
+  ],
+  "rulesets": [],
+  "reason": "La cuenta tiene escritura, sin administración. Debe aplicar las reglas el propietario o un administrador. No se intentó eludir esa limitación."
+}
